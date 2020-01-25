@@ -1,0 +1,37 @@
+/*-------------------------------------------------------------*/
+/* POSTCOMP CON CONTROLLO DI QUALE COMPILAZIONE ESEGUIRE       */
+/*-------------------------------------------------------------*/
+             PGM        PARM(&APPID &TSTID &VERS &OBJ &LIB &OBJTYP &SRCFIL &SRCLIB &SRCTYP &CPLTYP)
+
+             DCL        VAR(&APPID) TYPE(*CHAR) LEN(3)
+             DCL        VAR(&TSTID) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&VERS) TYPE(*CHAR) LEN(8)
+             DCL        VAR(&OBJ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&OBJTYP) TYPE(*CHAR) LEN(7)
+             DCL        VAR(&SRCFIL) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCLIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCTYP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&CPLTYP) TYPE(*CHAR) LEN(7)
+
+             DCL        VAR(&APPID) TYPE(*CHAR) LEN(3)
+             DCL        VAR(&PROGRAMMA) TYPE(*CHAR) LEN(2000)
+             DCL        VAR(&ESTLIB) TYPE(*CHAR) LEN(10)
+
+/* trovo applicazione arcad */
+             RTVAPPID   LIB(&SRCLIB) APPID(&APPID)
+             MONMSG     MSGID(CPF0000)
+
+/* discriminante se utilizzare compilazione ESTERNO (se non trovo dtaara esco)*/
+             RTVDTAARA  DTAARA(QTEMP/CPLESTERNO) RTNVAR(&PROGRAMMA)
+             MONMSG     MSGID(CPF1015) EXEC(GOTO CMDLBL(FINEPROG))
+
+/* estraggo da dtaara il nome del programma da richiamare */
+             CHGVAR     VAR(&ESTLIB ) VALUE(%SST(&PROGRAMMA 01 10))
+             ADDLIBLE   LIB(&ESTLIB)
+             MONMSG     MSGID(CPF0000)
+
+ /* chiamata a chiusura compilazioni ESTERNE */
+             CALL       PGM(WSSCOM9C) PARM(&APPID &TSTID &VERS &OBJ &LIB &OBJTYP &SRCFIL &SRCLIB &SRCTYP &CPLTYP)
+
+ FINEPROG:   ENDPGM

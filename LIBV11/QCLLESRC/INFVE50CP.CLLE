@@ -1,0 +1,35 @@
+/********************************************************************/
+/*                                                                  */
+/* lancio macro di distribuzione richiesta                          */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&OPERAZIONE &APP &VERSION)
+
+             DCL        VAR(&OPERAZIONE) TYPE(*CHAR) LEN(2)
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VERSION) TYPE(*CHAR) LEN(8)
+
+/* in base all'operazione richiama la macro */
+             IF         COND(&OPERAZIONE *EQ 'DI') THEN(DO)
+              ? DEB_UZV10 APP(&APP) VERSIONe(&VERSION)
+             MONMSG     MSGID(CPF6801)
+             GOTO       CMDLBL(FINE)
+             ENDDO
+
+             IF         COND(&OPERAZIONE *EQ 'DN') THEN(DO)
+              ? DEB_UZV10 APP(&APP) VERSIONe(&VERSION)
+             MONMSG     MSGID(Cpf6801)
+             GOTO       CMDLBL(FINE)
+             ENDDO
+
+             IF         COND(&OPERAZIONE *EQ 'DE') THEN(DO)
+             ?          DEB_HOTFI APP(&APP) VERSIONE(&VERSION)
+
+
+
+             MONMSG     MSGID(Cpf6801)
+             GOTO       CMDLBL(FINE)
+             ENDDO
+
+FINE:
+             ENDPGM

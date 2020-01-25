@@ -1,0 +1,14 @@
+             PGM        PARM(&LIB)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             CRTDTAARA  DTAARA(QTEMP/STCPARC) TYPE(*CHAR) LEN(10)
+             MONMSG     MSGID(CPF0000)
+             RTVJOBA    CURLIB(&LIB)
+             CHGDTAARA  DTAARA(QTEMP/STCPARC (1 10)) VALUE(&LIB)
+
+
+
+
+
+
+
+   ENDPGM

@@ -1,0 +1,8 @@
+pgm
+
+
+             GO         MENU(WSS)
+             MONMSG     MSGID(CPF0000)
+
+
+   endpgm

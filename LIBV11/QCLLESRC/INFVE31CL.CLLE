@@ -1,0 +1,97 @@
+/********************************************************************/
+/*                                                                  */
+/*   SE &COSA = V                                                   */
+/*   VISUALIZZA COSA VIENE MODIFICA DA UNA VERSIONE                 */
+/*                                                                  */
+/*   SE &COSA = L                                                   */
+/*   VISUALIZZA IL LOG DEI TRASFERIMENTI                            */
+/*                                                                  */
+/*   SE &COSA = W                                                   */
+/*   ESEGUE WRKOBJARC                                               */
+/*                                                                  */
+/*   SE &COSA = U                                                   */
+/*   ESEGUE UNLCKVER                                                */
+/*                                                                  */
+/*   SE &COSA = D                                                   */
+/*   ESEGUE sltver                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&AP &VER &COSAparm &IUSIWKparm)
+             DCL        VAR(&AP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VER) TYPE(*CHAR) LEN(8)
+             DCL        VAR(&COSA) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&IUSIWK) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&ENVSVI) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&COSAparm) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&IUSIWKparm) TYPE(*CHAR) LEN(1)
+
+             DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+/* lib in base a istanza */
+             CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+/*---------------------------------------------------------------*/
+/*--        rileva la lettera relariva all'env di sviluppo     --*/
+/*---------------------------------------------------------------*/
+             ADDLIBLE   LIB(&LIBPRD) POSITION(*LAST)
+             MONMSG CPF0000
+             CALL       PGM(INFVE36E) PARM(&AP &ENVSVI)
+
+/*---------------------------------------------------------------*/
+/*--                                                           --*/
+/*---------------------------------------------------------------*/
+             CHGVAR     VAR(&COSA) VALUE(&COSAPARM)
+             MONMSG     CPF0000
+             CHGVAR     VAR(&IUSIWK) VALUE(&IUSIWKPARM)
+             MONMSG     CPF0000
+
+             IF         COND(&COSA *EQ 'V') THEN(DO)
+             ADSPVEROBJ APP(&AP) ENV(&ENVSVI) VERSION(&VER)
+             MONMSG     CPF0000
+             ENDDO
+
+             IF         COND(&COSA *EQ 'L') THEN(DO)
+             ADSPTFRLOG PERIOD((*AVAIL *BEGIN)) APP(&AP) VERSION(&VER)
+             MONMSG     CPF0000
+             ENDDO
+
+             IF         COND(&COSA *EQ 'W') THEN(DO)
+             AINZCURENV APP(&AP) ENV(&ENVSVI) VERSION(&VER)
+             MONMSG     CPF0000
+
+             IF         COND(&IUSIWK *EQ 'S') THEN(DO)
+             CALL INFCMD3
+             MONMSG     CPF0000
+             ENDDO
+
+             AWRKOBJARC
+             MONMSG     CPF0000
+
+             ENDDO
+
+             IF         COND(&COSA *EQ 'Q') THEN(DO)
+             AINZCURENV APP(&AP) ENV(&ENVSVI) VERSION(&VER)
+             MONMSG     CPF0000
+  /*         CALL INFCMD3    */
+  /*         MONMSG     CPF0000  */
+             AWRKVER
+             MONMSG     CPF0000
+             ENDDO
+
+
+             IF         COND(&COSA *EQ 'I') THEN(DO)
+             ADSPVER    APP(&AP) ENV(&ENVSVI) VERSION(&VER)
+             MONMSG     CPF0000
+             ENDDO
+
+             IF         COND(&COSA *EQ 'U') THEN(DO)
+             AUNLCKVER  APP(&AP) VERSION(&VER)
+             MONMSG     CPF0000
+             ENDDO
+
+
+             IF         COND(&COSA *EQ 'D') THEN(DO)
+             ASLTVER    APP(&AP) ENV(*ALL) VERSION(&VER) +
+                          SELVERS(*ALL) VEROPT(DISTRIB)
+             MONMSG     CPF0000
+             ENDDO
+
+             ENDPGM

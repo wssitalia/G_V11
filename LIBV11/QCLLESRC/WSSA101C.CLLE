@@ -1,0 +1,11 @@
+             PGM        PARM(&CMD)
+/* PARAMETRI */
+             DCL        VAR(&CMD) TYPE(*CHAR) LEN(256)
+             DCL        VAR(&PSDSCALLER) TYPE(*CHAR) LEN(1024)
+             DCL        VAR(&PARAMETRI) TYPE(*CHAR) LEN(2820) /*20 +
+                          elem */
+             DCL        VAR(&MSG_SEV) TYPE(*CHAR) LEN(40) VALUE('XX')
+             CHGVAR     VAR(%SST(&PARAMETRI 2781 40)) VALUE(&MSG_SEV)
+                /*  scrittura log        */
+                CALL       PGM(WSSA100) PARM(&CMD &PARAMETRI &PSDSCALLER)
+             ENDPGM

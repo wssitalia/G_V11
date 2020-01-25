@@ -1,0 +1,61 @@
+/********************************************************************/
+/*                                                                  */
+/* 5770SS1 V7R1M0 100423     RTVCLSRC Output     01/06/16 12:38:36  */
+/*                                                                  */
+/* Program name . . . . . . . . . . . . . . :   DEBKCCMP0         PN*/
+/* Library name . . . . . . . . . . . . . . :   DEBKSPGM          PL*/
+/* Original source file . . . . . . . . . . :   QCLSRC            SN*/
+/* Library name . . . . . . . . . . . . . . :   DEBK401           SL*/
+/* Original source member . . . . . . . . . :   DEBKCCMP0         SM*/
+/* Source file change                                               */
+/*   date/time  . . . . . . . . . . . . . . :   21/01/13 11:01:06 SC*/
+/* Patch option . . . . . . . . . . . . . . :   *NOPATCH          PO*/
+/* User profile . . . . . . . . . . . . . . :   *OWNER            UP*/
+/* Text . . . : Compilazione - sottomette esecuzione              TX*/
+/* Owner  . . . . . . . . . . . . . . . . . :   OCS               OW*/
+/* User mod flag  . . . . . . . . . . . . . :   *YES              UM*/
+/* Retrieve included source . . . . . . . . :   *NO               RI*/
+/*                                                                ED*/
+/********************************************************************/
+     PGM PARM(&LIB &FILE &MBR &FUNCT)
+     DCL VAR(&MBR) TYPE(*CHAR) LEN(10)
+     DCL VAR(&LIB) TYPE(*CHAR) LEN(10)
+     DCL VAR(&FILE) TYPE(*CHAR) LEN(10)
+     DCL VAR(&TIPOSEU) TYPE(*CHAR) LEN(10)
+     DCL VAR(&JOB) TYPE(*CHAR) LEN(10)
+     DCL VAR(&STATUS) TYPE(*CHAR) LEN(02)
+     DCL VAR(&FUNCT) TYPE(*CHAR) LEN(02)
+     DCL VAR(&MSGWCOD) TYPE(*CHAR) LEN(04)
+     DCL VAR(&MSGWPAR) TYPE(*CHAR) LEN(24)
+     DCL VAR(&GRUPPO) TYPE(*CHAR) LEN(10)
+     DCL VAR(&PGMSTKP) TYPE(*CHAR) LEN(01)
+     DCL VAR(&RTGDTA) TYPE(*CHAR) LEN(80)
+     CALL PGM(OTTSPJBCUR) PARM('JOBNAM' &JOB)
+     CHGVAR VAR(&TIPOSEU) VALUE(' ')
+     CHGVAR VAR(&RTGDTA) VALUE('QCMDB')
+     RTVMBRD FILE(&LIB/&FILE) MBR(&MBR) SRCTYPE(&TIPOSEU)
+     MONMSG MSGID(CPF0000)
+     CHGVAR VAR(&STATUS) VALUE('  ')
+     IF COND(&TIPOSEU *EQ 'CBL' *OR &TIPOSEU *EQ 'SQLCBL' *OR -
+&TIPOSEU *EQ 'CBLLE' *OR &TIPOSEU *EQ 'SQLCBLLE' *OR &TIPOSEU *EQ -
+'SQLRPGLE' *OR &TIPOSEU *EQ 'RPGLE' *OR &TIPOSEU *EQ 'TASK' *OR -
+&TIPOSEU *EQ 'CLP' *OR &TIPOSEU *EQ 'CLLE' *OR &TIPOSEU *EQ 'RPGSR' -
+*OR &TIPOSEU *EQ 'SQLRPGSR' *OR &TIPOSEU *EQ 'CBLSR' *OR &TIPOSEU *EQ-
+ 'SQLCBLSR') THEN(GOTO CMDLBL(CMPPGM))
+     IF COND(&TIPOSEU *EQ 'DSPF') THEN(GOTO CMDLBL(CRTDSPF))
+FUNCT_KO:
+     CHGVAR VAR(&MSGWCOD) VALUE('7771')
+     CHGVAR VAR(&MSGWPAR) VALUE(' ')
+     CALL PGM(SYMSGWRN) PARM(&MSGWCOD &MSGWPAR)
+     GOTO CMDLBL(FINE)
+CMPPGM:
+     SBMJOB CMD(CALL PGM(OTTSCCMP0P) PARM(&LIB &FILE &MBR &TIPOSEU -
+&FUNCT)) JOB(&MBR) RTGDTA(&RTGDTA)
+     GOTO CMDLBL(FINE)
+CRTDSPF:
+     SBMJOB CMD(CALL PGM(OTTSCCMP0D) PARM(&LIB &FILE &MBR)) JOB(&MBR)-
+ RTGDTA(RTGDTA)
+     GOTO CMDLBL(FINE)
+FINE: +
+     RCLRSC
+     ENDPGM

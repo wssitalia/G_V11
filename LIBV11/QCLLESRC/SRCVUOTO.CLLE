@@ -1,0 +1,20 @@
+             PGM        PARM(&MBR &FILE &LIB)
+             DCL        VAR(&MBR) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&FILE) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&NREC) TYPE(*DEC) LEN(10 0) VALUE(0)
+
+             RTVMBRD    FILE(&LIB/&FILE) MBR(&MBR) NBRCURRCD(&NREC)
+             MONMSG     MSGID(CPF0000)
+
+             IF         COND(&NREC *GT 0) THEN(CHGDTAARA +
+                          DTAARA(*LDA (1 1)) VALUE('1'))
+
+             IF         COND(&NREC *EQ 0) THEN(CHGDTAARA +
+                          DTAARA(*LDA (1 1)) VALUE(' '))
+
+
+
+
+
+             ENDPGM

@@ -1,0 +1,15 @@
+             PGM        PARM(&new &old &file)
+             DCL        VAR(&file) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&NEW) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&old) TYPE(*CHAR) LEN(10)
+
+             DSPFD      FILE(&NEW/&FILE) TYPE(*MBRLIST) +
+                          OUTPUT(*OUTFILE) OUTFILE(*LIBL/WAMBRN00F) +
+                          OUTMBR(*FIRST *REPLACE)
+             CALL       PGM(WSSA107) PARM(&NEW &OLD)
+             DSPFD      FILE(&OLD/&FILE) TYPE(*MBRLIST) +
+                          OUTPUT(*OUTFILE) OUTFILE(*LIBL/WAMBRO00F) +
+                          OUTMBR(*FIRST *REPLACE)
+             MONMSG     MSGID(CPF3012) EXEC(GOTO CMDLBL(FINE))
+             CALL       PGM(WSSA108) PARM(&NEW &OLD)
+fine:        ENDPGM

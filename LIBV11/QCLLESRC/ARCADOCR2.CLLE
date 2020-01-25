@@ -1,0 +1,52 @@
+             PGM        PARM(&orig &lib &xapp &xenv)
+
+             DCL        VAR(&idx) TYPE(*dec) LEN(4 0)
+             DCL        VAR(&lib) TYPE(*CHAR) LEN(10)
+
+             DCL        VAR(&app) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&env) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&xapp) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&xenv) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&retco) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&orig) TYPE(*CHAR) LEN(10)
+             DCLF       FILE(QTEMP/WRKDSPLIB) OPNID(LIB)
+/* init risultato */
+             CHGVAR     VAR(&LIB) VALUE('          ')
+
+        /* ricerca lib versione originale */
+             CLRPFM     FILE(QTEMP/WRKDSPlib)
+             MONMSG     MSGID(CPF0000)
+             DSPOBJD    OBJ(*ALL/&ORIG) OBJTYPE(*PGM) +
+                          OUTPUT(*OUTFILE) OUTFILE(QTEMP/WRKDSPlib)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(FINE))
+loop2:
+             RCVF       OPNID(LIB)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(FINE))
+             IF         COND((&LIB_ODLBNM *GE 'OXBM' *AND +
+                          &LIB_ODLBNM *LE 'OXBM9999999') *OR +
+                          (&LIB_ODLBNM *GE 'JXBM' *AND &LIB_ODLBNM +
+                          *LE 'JXBM9999999')) THEN(DO)
+/* controlla se versione chiusa */
+               DLTDTAARA  DTAARA(QTEMP/STC_VERD)
+               MONMSG     MSGID(CPF0000)
+               CRTDTAARA  DTAARA(QTEMP/STC_VERD) TYPE(*CHAR) LEN(2000)
+               STC_VERD   LIBRERIA(&LIB_ODLBNM) CFMSTART(*NO)
+               RTVDTAARA  DTAARA(QTEMP/STC_VERD (31 10)) RTNVAR(&RETCO)
+               MONMSG     MSGID(CPF0000) EXEC(do)
+                          GOTO       CMDLBL(FINE)
+               ENDDO
+
+               /* controllo appp env  che siano gli stessi del richi */
+               RTVDTAARA  DTAARA(QTEMP/STC_VERD (01 10)) RTNVAR(&app)
+               RTVDTAARA  DTAARA(QTEMP/STC_VERD (11 10)) RTNVAR(&env)
+               IF         COND(&APP *NE &XAPP *OR &ENV *NE &XENV) +
+                          THEN(GOTO CMDLBL(LOOP2))
+               IF         COND(&RETCO *EQ '*YES') THEN(CHGVAR +
+                          VAR(&LIB) VALUE(&LIB_ODLBNM))
+
+               GOTO       CMDLBL(FINE)   /* esce al primo rec buono */
+             ENDDO
+
+             GOTO       CMDLBL(LOOP2)
+fine:
+             ENDPGM

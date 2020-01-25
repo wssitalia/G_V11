@@ -1,0 +1,99 @@
+/********************************************************************/
+/*                                                                  */
+/* 5770SS1 V7R1M0 100423     RTVCLSRC Output     01/06/16 12:38:54  */
+/*                                                                  */
+/* Program name . . . . . . . . . . . . . . :   DEBKCCMP0D        PN*/
+/* Library name . . . . . . . . . . . . . . :   DEBKSPGM          PL*/
+/* Original source file . . . . . . . . . . :   QCLSRC            SN*/
+/* Library name . . . . . . . . . . . . . . :   DEBK401           SL*/
+/* Original source member . . . . . . . . . :   DEBKCCMP0D        SM*/
+/* Source file change                                               */
+/*   date/time  . . . . . . . . . . . . . . :   01/03/13 07:47:05 SC*/
+/* Patch option . . . . . . . . . . . . . . :   *NOPATCH          PO*/
+/* User profile . . . . . . . . . . . . . . :   *OWNER            UP*/
+/* Text . . . : Compilazione - DSPF                               TX*/
+/* Owner  . . . . . . . . . . . . . . . . . :   OCS               OW*/
+/* User mod flag  . . . . . . . . . . . . . :   *YES              UM*/
+/* Retrieve included source . . . . . . . . :   *NO               RI*/
+/*                                                                ED*/
+/********************************************************************/
+     PGM PARM(&LIB &FILE &MBR &RETCO)
+     DCL VAR(&MBR) TYPE(*CHAR) LEN(10)
+     DCL VAR(&LIB) TYPE(*CHAR) LEN(10)
+     DCL VAR(&LIBOBJ) TYPE(*CHAR) LEN(10)
+     DCL VAR(&FILE) TYPE(*CHAR) LEN(10)
+     DCL VAR(&RTNCDE) TYPE(*CHAR) LEN(2)
+     DCL VAR(&SRCLIB) TYPE(*CHAR) LEN(10)
+     DCL VAR(&USRATR) TYPE(*CHAR) LEN(10)
+     DCL VAR(&MODE) TYPE(*CHAR) LEN(2)
+     DCL VAR(&ID) TYPE(*CHAR) LEN(10)
+     DCL VAR(&SYSNAME) TYPE(*CHAR) LEN(8)
+     DCL VAR(&RSTDSP) TYPE(*CHAR) LEN(4)
+     DCL VAR(&RETCO) TYPE(*CHAR) LEN(1)
+     DCLF FILE(QAFDDSP)
+     MONMSG MSGID(CPF0000) EXEC(GOTO CMDLBL(ERRORE))
+     CHGVAR VAR(&RETCO) VALUE(' ')
+     CALL PGM(SYRTVNETA) PARM(&SYSNAME)
+     CHGVAR VAR(&LIBOBJ) VALUE(&LIB)
+     IF COND(&SYSNAME *NE 'OCS') THEN(DO)
+     CALL PGM($YCOMPLIB) PARM(&LIB &LIBOBJ ' ')
+     MONMSG MSGID(CPF0000)
+     ENDDO
+     RTVOBJD OBJ(&LIB/&MBR) OBJTYPE(*FILE) USRDFNATR(&USRATR)
+     MONMSG MSGID(CPF0000)
+     IF COND(&USRATR *EQ '          ') THEN(CALL PGM(OAUIPATR) -
+PARM(&LIB &MBR &USRATR))
+     CHGVAR VAR(&SRCLIB) VALUE(&LIB)
+     CALL PGM(OTSQCDDS) PARM(&MBR &LIB &FILE &RTNCDE)
+     IF COND(&RTNCDE *EQ 'OK') THEN(CHGVAR VAR(&SRCLIB) -
+VALUE('QTEMP'))
+     CALLSUBR SUBR(RSTDSP)
+     CRTDSPF FILE(&LIBOBJ/&MBR) SRCFILE(&SRCLIB/&FILE) SRCMBR(&MBR) -
+RSTDSP(&RSTDSP) DFRWRT(*NO)
+     CALLSUBR SUBR(BEEVO)
+     GOTO CMDLBL(FINE)
+ERRORE: +
+     SNDPGMMSG MSGID(CPF7302) MSGF(QCPFMSG) MSGDTA(&MBR *CAT &LIB) -
+MSGTYPE(*ESCAPE)
+     CHGVAR VAR(&RETCO) VALUE('E')
+FINE: +
+     RETURN
+RSTDSP: +
+     SUBR SUBR(RSTDSP)
+     CHGVAR VAR(&RSTDSP) VALUE('*YES')
+     DSPFD FILE(&LIB/&MBR) TYPE(*ATR) OUTPUT(*OUTFILE) FILEATR(*DSPF)-
+ OUTFILE(QTEMP/OSDSWFDBAS)
+     MONMSG MSGID(CPF0000) EXEC(GOTO CMDLBL(RSTDSP_END))
+     OVRDBF FILE(QAFDDSP) TOFILE(QTEMP/OSDSWFDBAS)
+READ:
+     RCVF
+     MONMSG MSGID(CPF0864) EXEC(GOTO CMDLBL(RSTDSP_LIB))
+     IF COND(&DSRSTD *NE 'Y') THEN(CHGVAR VAR(&RSTDSP) VALUE('*NO '))
+     GOTO CMDLBL(RSTDSP_END)
+RSTDSP_LIB:
+     DSPFD FILE(*LIBL/&MBR) TYPE(*ATR) OUTPUT(*OUTFILE) -
+FILEATR(*DSPF) OUTFILE(QTEMP/OSDSWFDBAS)
+     MONMSG MSGID(CPF0000) EXEC(GOTO CMDLBL(RSTDSP_END))
+     OVRDBF FILE(QAFDDSP) TOFILE(QTEMP/OSDSWFDBAS)
+READL:
+     RCVF
+     MONMSG MSGID(CPF0864) EXEC(GOTO CMDLBL(RSTDSP_END))
+     IF COND(&DSRSTD *NE 'Y') THEN(CHGVAR VAR(&RSTDSP) VALUE('*NO '))
+RSTDSP_END: +
+     ENDSUBR
+BEEVO: +
+     SUBR SUBR(BEEVO)
+     IF COND(&USRATR *NE '          ') THEN(DO)
+     CHGVAR VAR(&MODE) VALUE('CL')
+     IF COND(&SYSNAME *EQ 'OCS     ') THEN(CHGVAR VAR(&MODE) VALUE(' -
+ '))
+     IF COND(%SST(&USRATR 1 2) *EQ 'DS') THEN(DO)
+     CHGVAR VAR(&ID) VALUE(&USRATR)
+     CHGVAR VAR(&MODE) VALUE('  ')
+     ENDDO
+     CALL PGM(OAUICBLD1) PARM(&FILE &LIB &MBR &LIB &ID &MODE)
+     MONMSG MSGID(CPF0000)
+     ENDDO
+BEEVO_END: +
+     ENDSUBR
+     ENDPGM

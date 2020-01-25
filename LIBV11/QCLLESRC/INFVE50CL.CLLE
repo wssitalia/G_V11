@@ -1,0 +1,26 @@
+/********************************************************************/
+/*                                                                  */
+/*   CL - CHE VIENE LANCIATO DAL COMANDO WSSDIST                    */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&APP)
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+
+
+             DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+/* lib in base a istanza */
+             CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+
+             DLTF       FILE(QTEMP/INFVE300F)
+             MONMSG     MSGID(CPF0000)
+
+             CALL       PGM(ARCADTMPC)
+
+             CRTDUPOBJ  OBJ(INFVE3000F) FROMLIB(*LIBL) +
+                          OBJTYPE(*FILE) TOLIB(QTEMP) NEWOBJ(INFVE300F)
+             ADDLIBLE   LIB(&libPRD)
+             MONMSG     MSGID(CPF0000)
+             CALL       PGM(INFVE5) PARM(&APP)
+             RMVLIBLE   LIB(&libPRD)
+             MONMSG     MSGID(CPF0000)
+             ENDPGM

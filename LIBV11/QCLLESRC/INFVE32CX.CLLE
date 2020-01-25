@@ -1,0 +1,26 @@
+/********************************************************************/
+/*                                                                  */
+/*                                                                  */
+/*   CL - CHE VIENE LANCIATO DAL COMANDO LISTVER IN  ARCAD_ENG      */
+/*                                                                  */
+/*                                                                  */
+/*                                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM   &app
+             dcl &app *char 3
+
+             DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+/* lib in base a istanza */
+             CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+
+             DLTF QTEMP/INFVE300F
+             MONMSG CPF0000
+             CRTDUPOBJ  OBJ(INFVE3000F) FROMLIB(*LIBL) +
+                          OBJTYPE(*FILE) TOLIB(QTEMP) NEWOBJ(INFVE300F)
+             ADDLIBLE &libPRD
+             MONMSG CPF0000
+             CALL       PGM(INFVE3) PARM(&APP)
+             RMVLIBLE &libPRD
+             MONMSG CPF0000
+             ENDPGM

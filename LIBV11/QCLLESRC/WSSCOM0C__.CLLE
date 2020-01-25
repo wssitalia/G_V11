@@ -1,0 +1,168 @@
+/*-------------------------------------------------------------------*/
+/* PROCEDURA DI CONTROLLO COMPILAZIONI ESTERNE CON ALTRA OPZIONE PDM */
+/*-------------------------------------------------------------------*/
+
+             PGM        PARM(&LIB &SRCFIL &MBR &TIPOSEU &ESTERNO &ESTLIB)
+
+             DCL        VAR(&OTTSFUNCT) TYPE(*CHAR) LEN(2) VALUE(' ')
+             DCL        VAR(&L_TIPOOBJ) TYPE(*CHAR) LEN(10)
+
+             DCL        VAR(&MBR) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCFIL) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&TIPOSEU) TYPE(*CHAR) LEN(10)
+
+             DCL        VAR(&ESTERNO) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ESTLIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SECONDO) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&L_TIPOCPL1) TYPE(*CHAR) LEN(7)
+             DCL        VAR(&L_TIPOCPL2) TYPE(*CHAR) LEN(7)
+             DCL        VAR(&L_genovr1) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&L_genovr2) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&blank) TYPE(*CHAR) LEN(10)  VALUE(' ')
+             DCL        VAR(&retco) TYPE(*CHAR) LEN(1)  VALUE(' ')
+             DCL        VAR(&L_retcod) TYPE(*CHAR) LEN(1)  VALUE(' ')
+/* pgm di arcad per aggiornare reference   */
+
+             DCL        VAR(&PGMARCAD) TYPE(*CHAR) LEN(10) +
+                          VALUE('AARM180R1')
+                  /*      VALUE('ARM010R6')     old */
+
+             DCL        VAR(&PGMARCA2) TYPE(*CHAR) LEN(10) +
+                          VALUE('AARC202G1')
+                  /*      VALUE('ARM000G1')     old */
+/* imposto ambiente per creare lista librerie corretta */
+             DCL        VAR(&ENVAPP) TYPE(*CHAR) LEN(3)
+             DCL        VAR(&ENVENV) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&ENVVER) TYPE(*CHAR) LEN(8)
+
+                DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+   /* lib in base a istanza */
+                CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+
+             ADDLIBLE   LIB(&LIBPRD)
+             MONMSG     MSGID(CPF0000)
+
+/* trovo info ambiente di arcad attuale */
+             CALL       PGM(&LIBPRD/&PGMARCA2) PARM(&ENVAPP &ENVENV &ENVVER)
+             AINZCURENV APP(&ENVAPP) ENV(&ENVENV) VERSION(&ENVVER)
+
+/** se tipo non in elenco richiama compilazione originale  **/
+             IF         COND(&TIPOSEU *EQ 'CBL') THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'CBLLE')    THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'CLLE')     THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'CLP')      THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'RPG')      THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'RPGLE')    THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'SQLCBL')   THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'SQLCBLLE') THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'SQLRPGLE') THEN(GOTO CMDLBL(ESTERNO))
+             IF    COND(&TIPOSEU *EQ 'DSPF') THEN(GOTO CMDLBL(ESTERNO))
+
+/* comando di compilazione arcad */
+             ACPLOBJ    OBJ(&LIB/&MBR) CPLTYPE(*SRCDFT) SRCLIB(&LIB) +
+                          SRCFILE(&SRCFIL) INZCURENV(*YES) MODE(*INTER)
+             MONMSG     MSGID(MSG0109)
+               MONMSG     MSGID(CPF0001 MSG1071) EXEC(DO)
+               SNDPGMMSG  MSG('/**** ERRORE RICHIAMO COMPILATORE +
+                            ARCAD ****/ ' *CAT &LIB *BCAT &SRCFIL +
+                            *BCAT &MBR *BCAT &TIPOSEU  )        +
+                              TOPGMQ(*EXT)
+               CHGJOB     LOG(4 00 *SECLVL) LOGCLPGM(*YES)
+               DSPJOBLOG  OUTPUT(*PRINT)
+               enddo
+               GOTO       CMDLBL(FINE)
+
+
+  esterno:
+
+
+
+/* chiamata a compilatore ESTERNO */
+             CALL       PGM(&ESTLIB/&ESTERNO) PARM(&LIB &SRCFIL &MBR +
+                          &TIPOSEU &OTTSFUNCT &L_RETCOD)
+
+/*  CALL ARM060C5 parm(&SRCFIL &LIB &mbr 'SQLCBLLE' &ENVAPP  &ENVENV &ENVVER +
+              '0'        ) */
+
+/* se ritorna non compilato non richiama xref di arcad */
+             IF         COND(&L_RETCOD *NE ' ') THEN(GOTO CMDLBL(FINE))
+
+             IF    COND(&TIPOSEU *EQ 'CBL')      THEN(CALLSUBR  SUBR(SR_CBL    ))
+             IF    COND(&TIPOSEU *EQ 'CBLLE')    THEN(CALLSUBR  SUBR(SR_CBLLE  ))
+             IF    COND(&TIPOSEU *EQ 'CLLE')     THEN(CALLSUBR  SUBR(SR_CLLE   ))
+             IF    COND(&TIPOSEU *EQ 'CLP')      THEN(CALLSUBR  SUBR(SR_CLP    ))
+             IF    COND(&TIPOSEU *EQ 'RPG')      THEN(CALLSUBR  SUBR(SR_RPG    ))
+             IF    COND(&TIPOSEU *EQ 'RPGLE')    THEN(CALLSUBR  SUBR(SR_RPGLE  ))
+             IF    COND(&TIPOSEU *EQ 'SQLCBL')   THEN(CALLSUBR  SUBR(SR_SQLCBL ))
+             IF    COND(&TIPOSEU *EQ 'SQLCBLLE') THEN(CALLSUBR  SUBR(SR_SQLCBLL))
+             IF    COND(&TIPOSEU *EQ 'SQLRPGLE') THEN(CALLSUBR  SUBR(SR_SQLRPGL))
+             IF         COND(&TIPOSEU *EQ 'DSPF') THEN(CALLSUBR +
+                          SUBR(SR_DSPF))
+
+/*                                        +
+CBL          *PGM       *CBL              +
+CBLLE      1 *PGM       *CBLLE            +
+CLLE       1 *PGM       *CLLE             +
+CLP          *PGM       *CLP              +
+RPG          *PGM       *RPG              +
+RPGLE      1 *PGM       *RPGLE            +
+SQLCBL       *PGM       *SQLCBL           +
+SQLCBLLE   2 *PGM       *SQLCBI           +
+SQLRPGLE   2 *PGM       *SQLRPI           +
+*/
+
+fine:
+             RETURN
+/*-----------------------------------------------------------------------------------------------*/
+             SUBR       SUBR(SR_CBL       )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*CBL   '   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_CBLLE     )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*CBLLE '   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_CLLE      )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*CLLE  '   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_CLP       )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*CLP   '   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_RPG       )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*RPG   '   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_RPGLE     )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*RPGLE '   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_SQLCBL    )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*SQLCBL'   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_SQLCBLL   )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*SQLCBI'   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_SQLRPGL   )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV &ENVVER &LIB    +
+                        '*SQLRPI'   '*PGM       '      +
+                        &SRCFIL &TIPOSEU '    ' ' '   &L_RETCOD)
+             ENDSUBR
+             SUBR       SUBR(SR_DSPF      )
+             CALL       PGM(&PGMARCAD) PARM(&MBR &LIB &ENVAPP &ENVENV +
+                          &ENVVER &LIB '*DSPF' '*FILE      ' +
+                          &SRCFIL &TIPOSEU '    ' ' ' &L_RETCOD)
+             ENDSUBR
+             ENDPGM

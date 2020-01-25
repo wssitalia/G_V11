@@ -1,0 +1,27 @@
+             PGM        PARM(&PAPP &PRELOCS &PNOTE)
+             DCL        VAR(&PAPP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PRELOCS) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PNOTE) TYPE(*CHAR) LEN(50)
+             DCL        VAR(&WQCMDEXEC) TYPE(*CHAR) LEN(2000)
+             DCL        VAR(&WPGMSBM) TYPE(*CHAR) LEN(10) +
+                          VALUE(AARM388CN)
+             DCL        VAR(&WUSERRETE) TYPE(*CHAR) LEN(10) +
+                          VALUE(ARCAD_NET)
+
+             ARCADTMP
+
+             CHGVAR     VAR(&WQCMDEXEC) VALUE('  SBMJOB +
+                          CMD(DEB_SUR10  APP(' *TCAT &PAPP *TCAT +
+                          ') ENV(U) RELEASEOCS(' *TCAT &PRELOCS +
+                          *TCAT ') COMMENTO(''' *TCAT &PNOTE *TCAT +
+                          ''')                 ) JOB(DEB_SUR10) +
+                          JOBQ(ARCAD_SYS/ARCAD_CTL)   USER(' *TCAT +
+                          &WUSERRETE *TCAT ')  ')
+
+             CALL       PGM(&WPGMSBM) PARM(&WQCMDEXEC)
+
+
+             CALL       PGM(ARCADTMPD)
+
+
+   endpgm

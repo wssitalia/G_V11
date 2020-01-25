@@ -1,0 +1,14 @@
+/*=================================================================*/
+/* a fronte di APP ricevuta legge relativa dtaara ambienti compass */
+/*=================================================================*/
+             PGM        PARM(&APP &AMB)
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&DATI) TYPE(*CHAR) LEN(10) VALUE('STCPAR_')
+             DCL        VAR(&AMB) TYPE(*CHAR) LEN(150)
+             DCL        VAR(&nome) TYPE(*CHAR) LEN(10)
+
+             CHGVAR     VAR(&NOME) VALUE(&DATI *TCAT %SST(&APP 1 3))
+             CHGDTAARA  DTAARA(&NOME *ALL) VALUE(&AMB)
+             MONMSG     MSGID(CPF0000)
+
+             ENDPGM

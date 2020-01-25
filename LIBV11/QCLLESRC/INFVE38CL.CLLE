@@ -1,0 +1,50 @@
+/********************************************************************/
+/*                                                                  */
+/*  PARAMETRI : &AP    APPLIZAZIONE    10                           */
+/*              &VER   VERSIONE         8                           */
+/*                                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&AP &VER &ENV   )
+
+             DCL        VAR(&ap) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ENV) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VER) TYPE(*CHAR) LEN(8)
+             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ENVSVI) TYPE(*CHAR) LEN(10)
+
+
+             DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+/* lib in base a istanza */
+             CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+
+             RTVJOBA    CURUSER(&USER)
+/*---------------------------------------------------------------*/
+/*--        rileva la lettera relativa all'env di sviluppo     --*/
+/*---------------------------------------------------------------*/
+             ADDLIBLE   LIB(&libPRD) POSITION(*LAST)
+             MONMSG     MSGID(CPF0000)
+/*           CALL       PGM(INFVE36E) PARM(&AP &ver)       */
+/*---------------------------------------------------------------*/
+/*--        ESEGUE LA VALIDAZIONE                              --*/
+/*---------------------------------------------------------------*/
+             AINZCURENV APP(&AP) VERSION(&VER) ENVTYPE(*TST)
+             MONMSG CPF0000  MSG0612
+
+/*---------------------------------------------------------------*/
+/*--    AGGIUNTA UTENTE IN VALIDATORI                         --*/
+/*---------------------------------------------------------------*/
+             ADDLIBLE   LIB(&libPRD) POSITION(*LAST)
+             MONMSG     MSGID(CPF0000)
+/*           SETASPGRP  ASPGRP(IASP01)  */
+/*           MONMSG     MSGID(CPF0000)  */
+             AADDVERSTF USRPRF(&USER) APP(&AP) ENV(&ENV) +
+                          VERSION(&VER) SIGNATURE(*YES)
+             MONMSG     MSGID(MSG1977)
+             MONMSG     MSGID(MSG0325 MSG9804) EXEC(GOTO CMDLBL(FINE))
+             AVLDVER    APP(&AP) ENV(&ENV) VERSION(&VER)
+             MONMSG CPF0000
+
+             CALL       PGM(INFVE36) PARM(&AP &VER &ENV)
+             MONMSG CPF0000
+FINE:       ENDPGM

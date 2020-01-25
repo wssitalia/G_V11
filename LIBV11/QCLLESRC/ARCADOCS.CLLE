@@ -1,0 +1,80 @@
+/* Nome programma . . . . . . . . . . . . . :   ARCADOCS          PN*/
+/* derivato da COMPCCMPP0                                         PN*/
+/* Nome libreria  . . . . . . . . . . . . . :   ODOBJ000          PL*/
+/********************************************************************/
+     PGM PARM(&LIB &FILE &PGM &TIPOSRC &FUNCT  &RETCO) /* WSS */
+             DCL        VAR(&RETCO) TYPE(*CHAR) LEN(1)   /* WSS */
+     DCL VAR(&MBR) TYPE(*CHAR) LEN(10)
+     DCL VAR(&LIB) TYPE(*CHAR) LEN(10)
+     DCL VAR(&FILE) TYPE(*CHAR) LEN(10)
+     DCL VAR(&TIPOSEU) TYPE(*CHAR) LEN(10)
+     DCL VAR(&JOB) TYPE(*CHAR) LEN(10)
+     DCL VAR(&PTY) TYPE(*CHAR) LEN(10)
+     DCL VAR(&NETAT) TYPE(*CHAR) LEN(08)
+     DCL VAR(&STATUS) TYPE(*CHAR) LEN(02)
+     DCL VAR(&FUNCT) TYPE(*CHAR) LEN(02)
+     DCL VAR(&MSGWCOD) TYPE(*CHAR) LEN(04)
+     DCL VAR(&MSGWPAR) TYPE(*CHAR) LEN(24)
+             DCL        VAR(&TIPOSRC) TYPE(*CHAR) LEN(10)
+     DCL VAR(&PGMSTKP) TYPE(*CHAR) LEN(01)
+             DCL        VAR(&PGM) TYPE(*CHAR) LEN(10)
+
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&env) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ver) TYPE(*CHAR) LEN(8)
+
+     DCL VAR(&RTGDTA) TYPE(*CHAR) LEN(80)
+     RTVNETA SYSNAME(&NETAT)
+
+     DLTDTAARA  DTAARA(QTEMP/ARCCMPDT01)
+     MONMSG     MSGID(CPF0000)
+     DLTDTAARA  DTAARA(QTEMP/ARCCMPDT02)
+     MONMSG     MSGID(CPF0000)
+     DLTDTAARA  DTAARA(QTEMP/ARCCMPDT03)
+     MONMSG     MSGID(CPF0000)
+
+ /*  CRTDTAARA  DTAARA(QTEMP/ARCCMPDT01) TYPE(*CHAR) LEN(500) VALUE('CRTBNDRPG  PGM(QTEMP/PROVA1) +
+                  SRCFILE(SAMD1_00_F/QRPGLESRC) SRCMBR(PROVA1) DFTACTGRP(*YES) OPTION(*XREF *SHOWCPY *EXPDDS *EXT +
+                  *SRCSTMT *SHOWSKP) DBGVIEW(*ALL) OPTIMIZE(*FULL)                          CVTOPT(*DATETIME) +
+                  TGTRLS(V5R4M0) ')*/
+
+
+     setaspgrp  iasp01
+     monmsg     cpf0000
+
+/* imposto ccsid/lang/country corretto per compilazioni ocs */
+             CALL       PGM(WSSCCSID) PARM(' ')
+
+/* tolgo librerie eventuali */
+
+
+             ARTVCURENV APP(&APP) ENV(&ENV) VERSION(&VER)
+
+/* sistemo  librerie           */
+             CALL       PGM(ARCADOCL) PARM(&LIB &APP &ENV &VER )
+
+/* se sorgente dspf chiamo altra routine */
+     IF         COND(&TIPOSRC *EQ 'DSPF') THEN(GOTO CMDLBL(CRTDSPF))
+
+     CALL       PGM(arcadocexe) PARM(&LIB &FILE &PGM &TIPOSRC &FUNCT &RETCO)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&RETCO) VALUE('E')
+             enddo
+     GOTO CMDLBL(FINE)
+
+CRTDSPF:
+/*   CALL       PGM(COMPCCMP0D) PARM(&LIB &FILE &PGM &RETCO)  */
+     CALL       PGM(debkCCMP0D) PARM(&LIB &FILE &PGM &RETCO)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&RETCO) VALUE('E')
+             enddo
+     GOTO CMDLBL(FINE)
+
+ FINE:
+             RCLRSC     LVL(*)
+
+/* reset   ccsid/lang/country                               */
+             CALL       PGM(WSSCCSID) PARM('R')
+
+     RETURN
+     ENDPGM

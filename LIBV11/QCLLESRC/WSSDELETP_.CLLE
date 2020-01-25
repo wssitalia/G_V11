@@ -1,0 +1,14 @@
+/**********************************************************************************/
+/*  cancella versione                                                             */
+/**********************************************************************************/
+             PGM        PARM(&APP &ENV &VERSION)
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&env) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VERSION) TYPE(*CHAR) LEN(8)
+
+/* in base all'operazione richiama la macro */
+             ADLTVER    APP(&APP) ENV(&ENV) VERSION(&VERSION) +
+                          DLTCHGLOG(*YES)
+             MONMSG     MSGID(MSG0325)
+fine:
+endpgm

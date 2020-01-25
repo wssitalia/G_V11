@@ -1,0 +1,41 @@
+             PGM        PARM(&LIB)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ODLBNM) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ODOBNM) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ODOBTP) TYPE(*CHAR) LEN(8)
+
+ /*          DCL        VAR(&USER) TYPE(*CHAR) LEN(10) VALUE('XSARCAD') */
+             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+
+             DCLF       FILE(QTEMP/WSSCHGOWN)
+
+/* trovo proprietario da assegnare agli oggetti */
+             RTVDTAARA  DTAARA(WSSOWNER (1 10)) RTNVAR(&USER)
+
+             DLTF       FILE(QTEMP/WSSCHGOWN)
+             MONMSG     MSGID(CPF0000)
+
+             DSPOBJD    OBJ(&LIB/*ALL) OBJTYPE(*ALL) +
+                          OUTPUT(*OUTFILE) OUTFILE(QTEMP/WSSCHGOWN)
+
+             GRTOBJAUT  OBJ(&LIB) OBJTYPE(*LIB) USER(*PUBLIC) AUT(*ALL)
+             CHGOBJOWN  OBJ(&LIB) OBJTYPE(*LIB) NEWOWN(&USER) +
+                          CUROWNAUT(*SAME)
+             GRTOBJAUT  OBJ(&LIB/*ALL) OBJTYPE(*ALL) USER(*PUBLIC) +
+                          AUT(*ALL)
+LOOP:
+RCVF
+             MONMSG     MSGID(CPF0864) EXEC(GOTO CMDLBL(FINE))
+             CHGOBJOWN  OBJ(&ODLBNM/&ODOBNM) OBJTYPE(&ODOBTP) +
+                          NEWOWN(&USER) CUROWNAUT(*SAME)
+                          MONMSG CPF0000
+                         GOTO LOOP
+
+
+
+
+FINE:
+             DLTF       FILE(QTEMP/WSSCHGOWN)
+             MONMSG     MSGID(CPF0000)
+
+   ENDPGM

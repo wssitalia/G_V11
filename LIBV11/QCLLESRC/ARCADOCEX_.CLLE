@@ -1,0 +1,907 @@
+/*   Compilazione batch          */
+/* ARCAD TRASFORMATA IN INTERATTIVA  */
+             PGM        PARM(&LIB &FILE &PGM &TIPOSRC &FUNCT &RETCO)
+
+             DCL        VAR(&LIBMODULO) TYPE(*CHAR) LEN(10) +
+                          VALUE('QTEMP')
+
+
+             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PGM)         TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB)         TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIBOBJ)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&FUNCT)       TYPE(*CHAR) LEN(02)
+             DCL        VAR(&FILE)        TYPE(*CHAR) LEN(10)
+             DCL        VAR(&TIPOSRC)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&NETAT)       TYPE(*CHAR) LEN(08)
+             DCL        VAR(&STATUS)      TYPE(*CHAR) LEN(02)
+             DCL        VAR(&RELOLD)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PTY)         TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ACTGRP)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&BNDDIR)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRTSEQ)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&OPZUSR)      TYPE(*CHAR) LEN(06)
+             DCL        VAR(&OPZUSROLD)   TYPE(*CHAR) LEN(06)
+             DCL        VAR(&CLOSQLCSR)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&CLOSQLCS2)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ALWCPYDTA)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ESITOWRK)    TYPE(*CHAR) LEN(02)
+             DCL        VAR(&PRECMDI)     TYPE(*CHAR) LEN(1600)
+             DCL        VAR(&PRECMDO)     TYPE(*CHAR) LEN(200)
+             DCL        VAR(&PREIDX)      TYPE(*DEC) LEN(005)
+             DCL        VAR(&AUTOR)       TYPE(*CHAR) LEN(1)
+             DCL        VAR(&OWNER)       TYPE(*CHAR) LEN(10)
+             DCL        VAR(&OWNEROLD)    TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ESITOCMP)    TYPE(*CHAR) LEN(02)
+             DCL        VAR(&MOTIVOCMP)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIBDMT)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ISWK)        TYPE(*CHAR) LEN(2)
+             DCL        VAR(&ISEFF)       TYPE(*CHAR) LEN(1)
+             DCL        VAR(&CHKDMT)      TYPE(*CHAR) LEN(1)
+             DCL        VAR(&JOBUSER)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&DMTEXISTS)   TYPE(*CHAR) LEN(01)
+             DCL        VAR(&OATKFPERRE)  TYPE(*CHAR) LEN(20)
+             DCL        VAR(&OATKFPERES)  TYPE(*CHAR) LEN(2)
+             DCL        VAR(&LIBPERS)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCFINC)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&HNDCUR)      TYPE(*CHAR) LEN(12)
+             DCL        VAR(&HNDWRK)      TYPE(*CHAR) LEN(12)
+             DCL        VAR(&DSTOWN)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PRFOWN)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PRFGRP)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PGMTYPE)     TYPE(*CHAR) LEN(01)
+             DCL        VAR(&SQLOPT)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_CMD)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_SRCF)    TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_LIB)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_LIBOBJ)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_PGM)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_OBJTYP)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_COMMIT)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_OPT)     TYPE(*CHAR) LEN(100)
+             DCL        VAR(&ARC_CVTOPT)  TYPE(*CHAR) LEN(100)
+             DCL        VAR(&ARC_OPTIM)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_CMPOPT)  TYPE(*CHAR) LEN(100)
+             DCL        VAR(&ARC_INCFIL)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_GENLVL)  TYPE(*CHAR) LEN(02)
+             DCL        VAR(&ARC_DBG)     TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_DYNUSR)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_BNDDIR)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_ACTGRP)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_EXPORT)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_DETAIL)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_ALWCP)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_CLSCUR)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_SRTSEQ)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ARC_GENOPT)  TYPE(*CHAR) LEN(100)
+             DCL        VAR(&QLRCHG)      TYPE(*CHAR) LEN(08)
+             DCL        VAR(&RETCO)       TYPE(*CHAR) LEN(01)
+             CALL       PGM(STCCURB) PARM(&LIB &PGM 'QPGMR') /* +
+                          rimette owner il qpgmr */
+             CHGVAR     VAR(&RETCO) VALUE(' ')
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&SQLOPT)  VALUE('*SYS')
+             CHGVAR     VAR(&PGMTYPE) VALUE('C')
+             IF         COND(&TIPOSRC = 'RPGLLE' *OR &TIPOSRC = +
+                          'SQLRPGLE') THEN(CHGVAR VAR(&PGMTYPE) +
+                          VALUE('R'))
+             IF         COND(&TIPOSRC = 'CLP' *OR &TIPOSRC = 'CLLE') +
+                          THEN(CHGVAR VAR(&PGMTYPE) VALUE('J'))
+             IF         COND(&FILE *EQ 'QTASK') THEN(CHGVAR +
+                          VAR(&PGMTYPE) VALUE('S'))
+  /*         MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ERRORE))  */
+             CHGVAR     VAR(&ESITOCMP)   VALUE(' ')
+             CHGVAR     VAR(&MOTIVOCMP)  VALUE(' ')
+             CHGVAR     VAR(&CHKDMT)     VALUE('N')
+             CALL       PGM(OTTSPJBCUR) PARM('JOBUSR' &JOBUSER)
+             RTVNETA    SYSNAME(&NETAT)
+             CHGVAR     VAR(&PTY)        VALUE(*JOBD)
+ /* controlla esistenza DMT ed eventualmente crea files per controllo */
+             IF         COND(&PGMTYPE *NE 'J') THEN(DO)
+             CALLSUBR   SUBR(DMTPRE)
+ /* Controlli FEEVO  */
+             CALL       PGM(OXTSCPRE) PARM(&FILE &LIB &PGM)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP)  VALUE('NC')
+             CHGVAR     VAR(&MOTIVOCMP) VALUE('PrcFEEVO')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             ENDDO
+ /* setta la libreria di destinazione                    */
+             CALLSUBR   SUBR(LIBDST)
+ /* setta le opzioni di compilazione                    */
+             CALLSUBR   SUBR(CMPOPT)
+ /* setta lista librerie                                 */
+             CALLSUBR   SUBR(LIBLST)
+
+ /* Comandi di pre-compilazione */
+             CALLSUBR   SUBR(PRECMD)
+ /* Controlla DMT */
+             IF         COND(&DMTEXISTS = 'S' *AND &LIB *NE +
+                          'OCSFESEG' *AND &FUNCT = ' ' *AND &PGMTYPE +
+                          *NE 'J') THEN(DO)
+             CALLSUBR   SUBR(DMTCHK)
+             IF         COND(&STATUS *EQ 'KO') THEN(DO)
+             CHGVAR     VAR(&ESITOCMP)  VALUE('NC')
+             CHGVAR     VAR(&MOTIVOCMP) VALUE('ChkDMT')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             ENDDO
+ /* Crea COPY in QTEMP per INCLUDE DD  */
+             IF         COND(&TIPOSRC = 'SQLCBL' *OR &TIPOSRC = +
+                          'SQLCBLLE' *OR &TIPOSRC = 'CBL' *OR +
+                          &TIPOSRC = 'CBLLE') THEN(DO)
+             CALL       PGM(OTTSCCMPC1) PARM(&LIB &FILE &PGM)
+             CALL       PGM(OTTSCCMPC2) PARM(&PGM)
+             ENDDO
+ /* Imposta SRCF per INCLUDE         */
+/*           CHGVAR     VAR(&SRCFINC) VALUE(&FILE)   modificata 01/12/14 */
+             CHGVAR     VAR(&SRCFINC) VALUE('QLBLSRC')
+             IF         COND(&FILE = 'QSCBLSRC') THEN(CHGVAR +
+                          VAR(&SRCFINC) VALUE('QLBLSRC'))
+             IF         COND(&TIPOSRC *EQ 'RPGSR'    *OR +
+                             &TIPOSRC *EQ 'SQLRPGSR' *OR +
+                             &TIPOSRC *EQ 'CBLSR'    *OR +
+                             &TIPOSRC *EQ 'SQLCBLSR') THEN(DO)
+                RMVBNDDIRE BNDDIR(OCSSTD) OBJ((*LIBL/&PGM *SRVPGM))
+                MONMSG     MSGID(CPF0000)
+             ENDDO
+             IF    COND(&FILE *EQ 'QTASK')       THEN(GOTO CMDLBL(TASK))
+             IF    COND(&TIPOSRC *EQ 'CBL')      THEN(GOTO CMDLBL(OPM_CBL))
+             IF    COND(&TIPOSRC *EQ 'SQLCBL')   THEN(GOTO CMDLBL(OPM_SQL))
+             IF    COND(&TIPOSRC *EQ 'CBLLE')    THEN(GOTO CMDLBL(ILE_CBL))
+             IF    COND(&TIPOSRC *EQ 'RPGLE')    THEN(GOTO CMDLBL(ILE_RPG))
+             IF    COND(&TIPOSRC *EQ 'SQLRPGLE') THEN(GOTO CMDLBL(ILE_SQLRPG))
+             IF    COND(&TIPOSRC *EQ 'SQLCBLLE') THEN(GOTO CMDLBL(ILE_SQLCBL))
+             IF    COND(&TIPOSRC *EQ 'CLP')      THEN(GOTO CMDLBL(CLP))
+             IF    COND(&TIPOSRC *EQ 'CLLE')     THEN(GOTO CMDLBL(CLLE))
+             IF    COND(&TIPOSRC *EQ 'RPGSR')    THEN(GOTO CMDLBL(SRV_RPG))
+             IF    COND(&TIPOSRC *EQ 'SQLRPGSR') THEN(GOTO CMDLBL(SRV_SQLRPG))
+             IF    COND(&TIPOSRC *EQ 'CBLSR')    THEN(GOTO CMDLBL(SRV_CBL))
+             IF    COND(&TIPOSRC *EQ 'SQLCBLSR') THEN(GOTO CMDLBL(SRV_SQLCBL))
+ /* Tipo SEU non previsto         */
+             CHGVAR     VAR(&ESITOCMP)  VALUE('NC')
+             CHGVAR     VAR(&MOTIVOCMP) VALUE('ErrTIPO')
+             GOTO       CMDLBL(ERRORE)
+
+ ILE_SQLCBL:
+ /* Compilazione ILE SQL  con *BNDDIR  */
+ /* ARCAD    CRTSQLCBLI OBJ(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) + */
+             CRTSQLCBLI OBJ(&LIBmodulo/&PGM) SRCFILE(&LIB/&FILE) +
+                          COMMIT(*NONE) OBJTYPE(*MODULE) +
+                          OPTION(&SQLOPT)              +
+                          INCFILE(&SRCFINC) GENLVL(29) +
+                                           DYNUSRPRF(*OWNER) +
+                          COMPILEOPT('OPTIMIZE(*BASIC) +
+                          OPTION(*APOST *CRTF *SRC *DUPKEYCHK +
+                          *NOMONOPRC *BLK)')
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTSQLCBLI')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OBJTYP)  VALUE('*MODULE')
+             CHGVAR     VAR(&ARC_COMMIT)  VALUE('*NONE')
+             CHGVAR     VAR(&ARC_OPT)     VALUE(&SQLOPT)
+             CHGVAR     VAR(&ARC_CMPOPT)  VALUE('OPTIMIZE(*BASIC) +
+                            OPTION(*APOST *CRTF *SRC *DUPKEYCHK +
+                            *NOMONOPRC *BLK)')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE('29')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CHGVAR     VAR(&ARC_DYNUSR)  VALUE('*OWNER')
+             CALLSUBR   SUBR(ARCD01)
+/* ARCAD     CRTPGM     PGM(&LIBOBJ/&PGM) MODULE(&LIBOBJ/&PGM) + */
+             CRTPGM     PGM(&LIBOBJ/&PGM) MODULE(&LIBmodulo/&PGM) +
+                          BNDDIR(*LIBL/&BNDDIR) ACTGRP(&ACTGRP)
+
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTPGM')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_BNDDIR)  VALUE(&BNDDIR)
+             CHGVAR     VAR(&ARC_ACTGRP)  VALUE(&ACTGRP)
+             CALLSUBR   SUBR(ARCD02)
+/* ARCAD     DLTMOD     MODULE(&LIBOBJ/&PGM)                    */
+             DLTMOD     MODULE(&LIBMODULO/&PGM)
+             MONMSG     MSGID(CPF0000)
+             GOTO       CMDLBL(FINE_COMP)
+ SRV_SQLCBL:
+ /* Compilazione ILE SQL  con *BNDDIR  */
+             CRTSQLCBLI OBJ(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          COMMIT(*NONE) OBJTYPE(*MODULE) +
+                          OPTION(&SQLOPT)              +
+                          INCFILE(&SRCFINC) GENLVL(29) +
+                          DBGVIEW(*SOURCE) DYNUSRPRF(*OWNER) +
+                          COMPILEOPT('OPTIMIZE(*BASIC) +
+                          OPTION(*APOST *CRTF *SRC *DUPKEYCHK +
+                          *NOMONOPRC *BLK)')
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTSQLCBLI')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OBJTYP)  VALUE('*MODULE')
+             CHGVAR     VAR(&ARC_COMMIT)  VALUE('*NONE')
+             CHGVAR     VAR(&ARC_OPT)     VALUE(&SQLOPT)
+             CHGVAR     VAR(&ARC_CMPOPT)  VALUE('OPTIMIZE(*BASIC) +
+                            OPTION(*APOST *CRTF *SRC *DUPKEYCHK +
+                            *NOMONOPRC *BLK)')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE('29')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CHGVAR     VAR(&ARC_DYNUSR)  VALUE('*OWNER')
+             CALLSUBR   SUBR(ARCD01)
+             CALLSUBR   SUBR(SRVPGM)
+             IF         COND(&ESITOCMP = 'CE') THEN(GOTO +
+                          CMDLBL(ERRORE))
+             GOTO       CMDLBL(FINE_COMP)
+ /* Compilazione ILE CBLLE  */
+ ILE_CBL:
+ /* ARCAD    CRTCBLMOD  MODULE(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) + */
+             CRTCBLMOD  MODULE(&LIBmodulo/&PGM) SRCFILE(&LIB/&FILE) +
+                          OPTION(*APOST *CRTF *SRC *DUPKEYCHK +
+                          *NOMONOPRC *BLK) CVTOPT(*DATETIME +
+                          *TIMESTAMP *VARCHAR) OPTIMIZE(*BASIC)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTCBLMOD ')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OPT)     VALUE('*APOST *CRTF *SRC *DUPKEYCHK +
+                            *NOMONOPRC *BLK')
+             CHGVAR     VAR(&ARC_CVTOPT)  VALUE('*DATETIME *TIMESTAMP *VARCHAR')
+             CHGVAR     VAR(&ARC_OPTIM )  VALUE('*BASIC')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE('29')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CALLSUBR   SUBR(ARCD01)
+/* ARCAD     CRTPGM     PGM(&LIBOBJ/&PGM) MODULE(&LIBOBJ/&PGM) + */
+             CRTPGM     PGM(&LIBOBJ/&PGM) MODULE(&LIBmodulo/&PGM) +
+                          BNDDIR(*LIBL/&BNDDIR) ACTGRP(&ACTGRP)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTPGM')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_BNDDIR)  VALUE(&BNDDIR)
+             CHGVAR     VAR(&ARC_ACTGRP)  VALUE(&ACTGRP)
+             CALLSUBR   SUBR(ARCD02)
+/* ARCAD     DLTMOD     MODULE(&LIBOBJ/&PGM)                    */
+             DLTMOD     MODULE(&LIBMODULO/&PGM)
+             MONMSG     MSGID(CPF0000)
+             GOTO       CMDLBL(FINE_COMP)
+ /* Compilazione *SRVPGM CBL */
+ SRV_CBL:
+             CRTCBLMOD  MODULE(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          OPTION(*APOST *CRTF *SRC *DUPKEYCHK +
+                          *NOMONOPRC *BLK) CVTOPT(*DATETIME +
+                          *TIMESTAMP *VARCHAR) OPTIMIZE(*BASIC)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTCBLMOD ')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OPT)     VALUE('*APOST *CRTF *SRC *DUPKEYCHK +
+                            *NOMONOPRC *BLK')
+             CHGVAR     VAR(&ARC_CVTOPT)  VALUE('*DATETIME *TIMESTAMP *VARCHAR')
+             CHGVAR     VAR(&ARC_OPTIM )  VALUE('*BASIC')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE('29')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CALLSUBR   SUBR(ARCD01)
+             CALLSUBR   SUBR(SRVPGM)
+             IF         COND(&ESITOCMP = 'CE') THEN(GOTO +
+                          CMDLBL(ERRORE))
+             GOTO       CMDLBL(FINE_COMP)
+ /* Compilazione ILE RPGLE  */
+ ILE_RPG:
+             CRTBNDRPG  PGM(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          DFTACTGRP(*NO) ACTGRP(&ACTGRP) +
+                          BNDDIR(&BNDDIR) OPTION(*SHOWCPY +
+                          *EXPDDS *EXT *SRCSTMT *SHOWSKP) +
+                          DBGVIEW(*ALL) OPTIMIZE(*FULL) +
+                          CVTOPT(*DATETIME)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTBNDRPG')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OPT)     VALUE('*SHOWCPY *EXPDDS *EXT +
+                                                *SRCSTMT *SHOWSKP')
+             CHGVAR     VAR(&ARC_CVTOPT)  VALUE('*DATETIME')
+             CHGVAR     VAR(&ARC_OPTIM )  VALUE('*FULL')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*ALL')
+             CHGVAR     VAR(&ARC_BNDDIR)  VALUE(&BNDDIR)
+             CHGVAR     VAR(&ARC_ACTGRP)  VALUE(&ACTGRP)
+             CALLSUBR   SUBR(ARCD02)
+             GOTO       CMDLBL(FINE_COMP)
+ /* Compilazione *SRVPGM RPGILE */
+ SRV_RPG:
+             CRTRPGMOD  MODULE(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          OPTION(*SHOWCPY *EXPDDS *EXT +
+                          *SRCSTMT *SHOWSKP) DBGVIEW(*ALL) +
+                          OPTIMIZE(*FULL) CVTOPT(*DATETIME) +
+                                       BNDDIR(&BNDDIR)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTRPGMOD ')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OPT)     VALUE('*SHOWCPY *EXPDDS *EXT +
+                            *SRCSTMT *SHOWSKP')
+             CHGVAR     VAR(&ARC_CVTOPT)  VALUE('*DATETIME')
+             CHGVAR     VAR(&ARC_OPTIM )  VALUE('*FULL')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE('29')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CHGVAR     VAR(&ARC_BNDDIR)  VALUE(&BNDDIR)
+             CALLSUBR   SUBR(ARCD01)
+             CALLSUBR   SUBR(SRVPGM)
+     DLTMOD     MODULE(&LIBOBJ/&PGM)
+     MONMSG     MSGID(CPF0000)
+             IF         COND(&ESITOCMP = 'CE') THEN(GOTO +
+                          CMDLBL(ERRORE))
+             GOTO       CMDLBL(FINE_COMP)
+  /* Compilazione ILE SQLRPGLE  */
+  ILE_SQLRPG:
+/* ARCAD     CRTSQLRPGI OBJ(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) + */
+             CRTSQLRPGI OBJ(&LIBmodulo/&PGM) SRCFILE(&LIB/&FILE) +
+                          COMMIT(*NONE) OBJTYPE(*MODULE) +
+                          OPTION(&SQLOPT)              +
+                          INCFILE(&SRCFINC) GENLVL(29) +
+                          DBGVIEW(*SOURCE) DYNUSRPRF(*OWNER) +
+                          COMPILEOPT('OPTIMIZE(*FULL)')
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTSQLRPGI')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OBJTYP)  VALUE('*MODULE')
+             CHGVAR     VAR(&ARC_COMMIT)  VALUE('*NONE')
+             CHGVAR     VAR(&ARC_OPT)     VALUE(&SQLOPT)
+             CHGVAR     VAR(&ARC_CMPOPT)  VALUE('OPTIMIZE(*FULL)')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE('29')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CHGVAR     VAR(&ARC_DYNUSR)  VALUE('*OWNER')
+             CALLSUBR   SUBR(ARCD01)
+/*           CRTPGM     PGM(&LIBOBJ/&PGM) MODULE(&LIBOBJ/&PGM) + */
+             CRTPGM     PGM(&LIBOBJ/&PGM) MODULE(&LIBmodulo/&PGM) +
+                          BNDDIR(*LIBL/&BNDDIR) ACTGRP(&ACTGRP)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTPGM')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_BNDDIR)  VALUE(&BNDDIR)
+             CHGVAR     VAR(&ARC_ACTGRP)  VALUE(&ACTGRP)
+             CALLSUBR   SUBR(ARCD02)
+/* ARCAD     DLTMOD     MODULE(&LIBOBJ/&PGM)                    */
+             DLTMOD     MODULE(&LIBMODULO/&PGM)
+             MONMSG     MSGID(CPF0000)
+             GOTO       CMDLBL(FINE_COMP)
+  /* Compilazione *SRVPGM SQLRPG ILE */
+  SRV_SQLRPG:
+             CRTSQLRPGI OBJ(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          COMMIT(*NONE) OBJTYPE(*MODULE) +
+                          OPTION(&SQLOPT)              +
+                          INCFILE(&SRCFINC) GENLVL(29) +
+                          DBGVIEW(*SOURCE) DYNUSRPRF(*OWNER) +
+                          COMPILEOPT('OPTIMIZE(*FULL)')
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTSQLRPGI')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OBJTYP)  VALUE('*MODULE')
+             CHGVAR     VAR(&ARC_COMMIT)  VALUE('*NONE')
+             CHGVAR     VAR(&ARC_OPT)     VALUE(&SQLOPT)
+             CHGVAR     VAR(&ARC_CMPOPT)  VALUE('OPTIMIZE(*FULL)')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE('29')
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CHGVAR     VAR(&ARC_DYNUSR)  VALUE('*OWNER')
+             CALLSUBR   SUBR(ARCD01)
+             CALLSUBR   SUBR(SRVPGM)
+             IF         COND(&ESITOCMP = 'CE') THEN(GOTO +
+                          CMDLBL(ERRORE))
+             GOTO       CMDLBL(FINE_COMP)
+ TASK:
+             CALL       PGM(OAGTCTKCC) PARM(&LIB &PGM &LIB &LIBOBJ +
+                          'QSYSPRT   ' '*LIBL     ' ' ')
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             IF         COND(&LIBPERS *NE '          ') THEN(DO)
+                RMVLIBLE   LIB(&LIBPERS)
+                MONMSG     MSGID(CPF0000)
+                CHGVAR     VAR(&LIBPERS) VALUE('          ')
+             ENDDO
+             GOTO       CMDLBL(FINE_COMP)
+ OPM_SQL:
+             CRTSQLCBL  PGM(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          COMMIT(*NONE) OPTION(*SRC &SQLOPT) +
+                                       INCFILE(&SRCFINC) +
+                          ALWCPYDTA(&ALWCPYDTA) +
+                          CLOSQLCSR(&CLOSQLCSR) DYNUSRPRF(*OWNER) +
+                          SRTSEQ(&SRTSEQ) COMPILEOPT('OPTION(*APOST +
+                          *LSTDBG) GENOPT(*CRTF +
+                          *DUPKEYCHK *BLK *OPTIMIZE)')
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTSQLCBL')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_COMMIT)  VALUE('*NONE')
+             CHGVAR     VAR(&ARC_OPT)     VALUE('*SRC ' *CAT &SQLOPT)
+             CHGVAR     VAR(&ARC_CMPOPT)  VALUE('OPTION(*APOST +
+                             *LSTDBG) GENOPT(*CRTF +
+                             *DUPKEYCHK *BLK *OPTIMIZE)')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_DYNUSR)  VALUE('*OWNER')
+             CHGVAR     VAR(&ARC_ALWCP)   VALUE(&ALWCPYDTA)
+             CHGVAR     VAR(&ARC_CLSCUR)  VALUE(&CLOSQLCSR)
+             CHGVAR     VAR(&ARC_SRTSEQ)  VALUE(&SRTSEQ)
+             CALLSUBR   SUBR(ARCD02)
+             GOTO       CMDLBL(FINE_COMP)
+ OPM_CBL:
+ /* Compilazione COBOL standard */
+             CRTCBLPGM  PGM(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          OPTION(*APOST *SRCDBG) +
+                          GENOPT(*CRTF *DUPKEYCHK *BLK *OPTIMIZE) +
+                          CVTOPT(*DATETIME *VARCHAR) REPLACE(*YES)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTCBLPGM')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OPT)     VALUE('*APOST *SRCDBG')
+             CHGVAR     VAR(&ARC_CVTOPT)  VALUE('*DATETIME *VARCHAR')
+             CHGVAR     VAR(&ARC_CMPOPT)  VALUE(' ')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(&SRCFINC)
+             CHGVAR     VAR(&ARC_GENOPT)  VALUE('*CRTF *DUPKEYCHK *BLK +
+                                                 *OPTIMIZE')
+             CALLSUBR   SUBR(ARCD02)
+             GOTO       CMDLBL(FINE_COMP)
+CLP:
+             CRTCLPGM   PGM(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          OPTION(*SRCDBG) REPLACE(*YES)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTCLPGM')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_OPT)     VALUE('*SRCDBG')
+             CALLSUBR   SUBR(ARCD02)
+             GOTO       CMDLBL(FINE_COMP)
+CLLE:
+             CRTBNDCL   PGM(&LIBOBJ/&PGM) SRCFILE(&LIB/&FILE) +
+                          DFTACTGRP(*NO) ACTGRP(&ACTGRP) +
+                                        REPLACE(*YES)              +
+                          OPTIMIZE(*FULL) DBGVIEW(*SOURCE)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTBNDCL')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(&FILE)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_ACTGRP)  VALUE(&ACTGRP)
+             CHGVAR     VAR(&ARC_DBG)     VALUE('*SOURCE')
+             CHGVAR     VAR(&ARC_OPTIM)   VALUE('*FULL')
+             CALLSUBR   SUBR(ARCD02)
+             GOTO       CMDLBL(FINE_COMP)
+
+ERRORE:
+/* Rimozione libreria personalizzata */
+             IF         COND(&LIBPERS *NE '          ') THEN(DO)
+                RMVLIBLE   LIB(&LIBPERS)
+                MONMSG     MSGID(CPF0000)
+                CHGVAR     VAR(&LIBPERS) VALUE('          ')
+             ENDDO
+/* Invia messaggio di errore */
+             RTVJOBA    USER(&USER)
+             SNDUSRMSG  MSGID(CPF9898) MSGF(QCPFMSG) +
+                          MSGDTA('Rilevato errore in fase di +
+                          compilazione' *BCAT &PGM) MSGTYPE(*INFO) +
+                          TOUSR(&USER)
+             SNDPGMMSG  MSGID(CPF9898) MSGF(QCPFMSG) +
+                          MSGDTA('Rilevato errore in fase di +
+                          compilazione' *BCAT &PGM) MSGTYPE(*ESCAPE)
+             CHGVAR     VAR(&RETCO) VALUE('E')
+/* Produce Joblog            */
+             DSPJOBLOG  OUTPUT(*PRINT)
+             GOTO       CMDLBL(FINE)
+FINE_COMP:
+             IF         COND(&FUNCT *NE '  ') +
+                          THEN(GOTO CMDLBL(FINE))
+/* Aggiornare i moduli del dmt utilizzati */
+             IF         COND(&CHKDMT *EQ 'S' *AND &PGMTYPE *NE 'J') +
+                          THEN(CALL PGM(OATKPCCOK) PARM(&PGM))
+
+             IF         COND(&TIPOSRC *EQ 'RPGSR'    *OR +
+                             &TIPOSRC *EQ 'SQLRPGSR' *OR +
+                             &TIPOSRC *EQ 'CBLSR'    *OR +
+                             &TIPOSRC *EQ 'SQLCBLSR') THEN(GOTO CMDLBL(FINE))
+/* Setta l'opzione USER                                          */
+             CHGVAR     VAR(&QLRCHG) VALUE(X'0000000000000000')
+             CALL       PGM(QLRCHGCM) PARM(&QLRCHG)
+/* arcad correzione */  CHGVAR     VAR(&CLOSQLCS2) VALUE(&CLOSQLCSR)
+             CALL       PGM(OTTSPCMPA1) PARM(&LIB &LIBOBJ &PGM &OPZUSROLD +
+                          &OWNEROLD &RELOLD)
+/* arcad correzione */  CHGVAR     VAR(&CLOSQLCSr) VALUE(&CLOSQLCS2)
+             IF         COND(&OPZUSROLD *NE &OPZUSR) THEN(DO)
+             CHGPGM     PGM(&LIBOBJ/&PGM) USRPRF(&OPZUSR)
+             ENDDO
+/* Autorizzazioni   */
+             IF         COND(&AUTOR *EQ 'M') THEN(DO)
+             GRTOBJAUT  OBJ(&LIB/&PGM) OBJTYPE(*PGM) USER(*PUBLIC) +
+                          AUT(*OBJMGT)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             CHGVAR     VAR(&MOTIVOCMP) VALUE('Autor(M)')
+             GOTO       CMDLBL(ERRORE)
+             ENDDO
+             ENDDO
+/* Owner            */
+             IF         COND(&OWNER *NE ' ' *AND &OWNER *NE +
+                          &OWNEROLD) THEN(DO)
+             CHGVAR     VAR(&DSTOWN) VALUE(&OWNER)
+             CALLSUBR   SUBR(CHGOWN)
+             ENDDO
+             IF         COND(&ESITOCMP = 'CE') THEN(GOTO +
+                          CMDLBL(ERRORE))
+/* Compilazione programmi BIS */
+             CALL       PGM(OTTSPCMPB) PARM(&LIBOBJ &PGM)
+ /* wss      CALL       PGM(COMPPCMP03) PARM(&PGM)  */
+             CALL       PGM(debkPCMP03) PARM(&PGM)
+             MONMSG     MSGID(CPF0000)
+FINE:
+             RCLRSC
+             RETURN
+/*------------------------------------------------------------------*/
+/* Recupera opzioni di compilazione                                 */
+ CMPOPT:     SUBR       SUBR(CMPOPT)
+  /* Chiama routine OCS                                      */
+             CALL       PGM(OTTSPCMPOP) PARM(&LIB &FILE &PGM +
+                          &TIPOSRC &ACTGRP &OPZUSR &AUTOR &OWNER +
+                          &CLOSQLCSR  &SRTSEQ &BNDDIR)
+  /* Chiama routine Cliente                                  */
+             CALL       PGM(OSTSPCMPOP) PARM(&LIB &FILE &PGM +
+                          &TIPOSRC &ACTGRP &OPZUSR &OWNER +
+                          &CLOSQLCSR)
+             MONMSG     MSGID(CPF0000)
+             CHGVAR     VAR(&ALWCPYDTA) VALUE('*OPTIMIZE')
+             IF         COND(&PGM *EQ 'OTSQPGRSQ1') THEN(CHGVAR +
+                          VAR(&ALWCPYDTA) VALUE('*NO'))
+/* Recupera oopzioni da oggetto preesistente se esiste.                 */
+/* cerca prima nella libobj                                             */
+             CHGVAR     VAR(&QLRCHG) VALUE(X'0000000000000000')
+             CALL       PGM(QLRCHGCM) PARM(&QLRCHG)
+/* arcad correzione */  CHGVAR     VAR(&CLOSQLCS2) VALUE(&CLOSQLCSR)
+             CALL       PGM(OTTSPCMPA1) PARM(&LIB &LIBOBJ &PGM &OPZUSROLD +
+                          &OWNEROLD &RELOLD)
+/* arcad correzione */  CHGVAR     VAR(&CLOSQLCSr) VALUE(&CLOSQLCS2)
+/* Se l'oener del programma preesistente no è qullo corrente,           */
+/* autorizza lo user a CHGOBJOWN, cambia l'owner e reset autorizzazione */
+             RTVUSRPRF  GRPPRF(&PRFGRP) OWNER(&PRFOWN)
+             CHGVAR     VAR(&DSTOWN) VALUE(&JOBUSER)
+             IF         COND(&PRFOWN = '*GRPPRF') THEN(CHGVAR +
+                          VAR(&DSTOWN) VALUE(&PRFGRP))
+             IF         COND(&OWNEROLD *NE ' ' *AND &OWNEROLD *NE +
+                          &DSTOWN) THEN(DO)
+             CALLSUBR   SUBR(CHGOWN)
+             ENDDO
+
+ CMPOPT_END: ENDSUBR
+
+/*------------------------------------------------------------------*/
+/* Cambia Owner                                                     */
+ CHGOWN:     SUBR       SUBR(CHGOWN)
+             CALL       PGM(SYAUTSTR) PARM(&HNDCUR +
+                          &HNDWRK)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             IF         COND(&OPZUSR *NE '*OWNER') THEN(GOTO +
+                          CMDLBL(CHGOWN_END))
+             ENDDO
+             CHGOBJOWN  OBJ(&LIBOBJ/&PGM) OBJTYPE(*PGM) +
+                          NEWOWN(&DSTOWN)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             CHGVAR     VAR(&MOTIVOCMP) VALUE('*OWNER')
+             ENDDO
+             CALL       PGM(SYAUTEND) PARM(&HNDCUR +
+                          &HNDWRK)
+             MONMSG     MSGID(CPF0000)
+ CHGOWN_END: ENDSUBR
+
+/*------------------------------------------------------------------*/
+/* Prepara files per Controllo DMT                                  */
+ DMTPRE:     SUBR       SUBR(DMTPRE)
+             CHGVAR     VAR(&DMTEXISTS) VALUE('S')
+             CHKOBJ     OBJ(OAGMFMLS) OBJTYPE(*FILE)
+             MONMSG     MSGID(CPF0000) EXEC(CHGVAR VAR(&DMTEXISTS) +
+                          VALUE('N'))
+/* Creo il file per il controllo del DMT. */
+             IF         COND(&DMTEXISTS *EQ 'S') THEN(DO)
+             DLTF       FILE(QTEMP/OAGMFMLSQ)
+             MONMSG     MSGID(CPF0000)
+             DLTF       FILE(QTEMP/OAGMFMLSQ2)
+             MONMSG     MSGID(CPF0000)
+             CALL       PGM(CREAFIS) PARM('QTEMP' 'OAGMFMLSQ' +
+                          'OAGMFMLS' ' ')
+             CALL       PGM(CREAFIS) PARM('QTEMP' 'OAGMFMLSQ2' +
+                          'OAGMFMLS' ' ')
+             ENDDO
+ DMTPRE_END: ENDSUBR
+
+/*------------------------------------------------------------------*/
+/* Controllo DMT                                                    */
+ DMTCHK:     SUBR       SUBR(DMTCHK)
+             CHGVAR     VAR(&STATUS)   VALUE(' ')
+             CHGVAR     VAR(&CHKDMT) VALUE('N')
+/* esclude varie casistiche da controllo                           */
+             IF         COND(&FUNCT = 'CR') THEN(GOTO +
+                          CMDLBL(DMTCHK_END))
+             RTVOBJD    OBJ(OAGMFDMT) OBJTYPE(*FILE) RTNLIB(&LIBDMT)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(DMTCHK_END))
+/* Verfifica esistenza libreria personalizzata   */
+             CHGVAR     VAR(&LIBPERS) VALUE('          ')
+             CHGVAR     VAR(&OATKFPERRE) VALUE(&PGM *CAT '          ')
+             CHGVAR     VAR(&OATKFPERES) VALUE('  ')
+             CALL       PGM(OATKPPERRT) PARM(&OATKFPERRE &OATKFPERES)
+             IF         COND(&OATKFPERES *NE 'KO') THEN(DO)
+                CHGVAR     VAR(&LIBPERS) VALUE(%SST(&OATKFPERRE 11 10))
+                ADDLIBLE LIB(&LIBPERS)
+                MONMSG     MSGID(CPF0000) EXEC(CHGVAR VAR(&LIBPERS) +
+                          VALUE('          '))
+             ENDDO
+             CHGVAR     VAR(&CHKDMT) VALUE('S')
+             CALL       PGM(OATKCCKCC) PARM(&PGM &FILE &LIB &PGMTYPE +
+                          &STATUS)
+DMTCHK_END:  ENDSUBR
+
+/*------------------------------------------------------------------*/
+/* Setta libreria di destinazione del programma                     */
+ LIBDST:     SUBR       SUBR(LIBDST)
+             CHGVAR     VAR(&LIBOBJ) VALUE(&LIB)
+             IF         COND(&FUNCT *EQ 'CR') THEN(CHGVAR +
+                          VAR(&LIBOBJ) VALUE('QTEMP'))
+ LIBDST_END: ENDSUBR
+
+/*------------------------------------------------------------------*/
+/* Setta lista di librerie                                          */
+ LIBLST:     SUBR       SUBR(LIBLST)
+/* Aggiunge QUSRVI */
+/*           IF         COND(%SST(&PGM  1 2) = 'KP') THEN(DO)  */
+/*           ADDLIBLE   LIB(QUSRVI) POSITION(*LAST)            */
+/*           MONMSG     MSGID(CPF0000)                         */
+/*           ADDLIBLE   LIB(QVI) POSITION(*LAST)               */
+/*           MONMSG     MSGID(CPF0000)                         */
+/*           ENDDO                                             */
+ LIBLST_END: ENDSUBR
+
+/*------------------------------------------------------------------*/
+/* Comandi di precompilazione                                       */
+ PRECMD:     SUBR       SUBR(PRECMD)
+             CALL       PGM(OTTSPCMPMC) PARM(&PGM &PRECMDI)
+             CHGVAR     VAR(&PREIDX) VALUE(1)
+ PRECMD_LP:  CHGVAR     VAR(&PRECMDO) VALUE(%SST(&PRECMDI &PREIDX 200))
+             IF         COND(&PRECMDO *EQ ' ') THEN(GOTO +
+                          CMDLBL(PRECMD_END))
+             CALL       PGM(QCMDEXC) PARM(&PRECMDO 200)
+             MONMSG     MSGID(CPF0000)
+             CHGVAR     VAR(&PREIDX) VALUE(&PREIDX + 200)
+             IF         COND(&PREIDX < 1600) THEN(GOTO CMDLBL(PRECMD_LP))
+ PRECMD_END: ENDSUBR
+/*------------------------------------------------------------------*/
+/* *SRVPGM                                                          */
+ SRVPGM:     SUBR       SUBR(SRVPGM)
+             CHKOBJ     OBJ(&LIB/QSRVSRC) OBJTYPE(*FILE) MBR(&PGM)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(SRVPGM_ALL))
+             CRTSRVPGM  SRVPGM(&LIBOBJ/&PGM) EXPORT(*SRCFILE) +
+                          SRCFILE(&LIB/QSRVSRC) DETAIL(*FULL)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(SRVPGM_END)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTSRVPGM')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_SRCF)    VALUE('QSRVSRC')
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_EXPORT)  VALUE('*SRCFILE')
+             CHGVAR     VAR(&ARC_DETAIL)  VALUE('*FULL')
+             CALLSUBR   SUBR(ARCD02)
+/****************************************************ARCAD */
+/* DEVE RIMANERE IL MODULO COMPILATO                       */
+/*      DLTMOD     MODULE(&LIBOBJ/&PGM)                    */
+/*      MONMSG     MSGID(CPF0000)                          */
+/****************************************************ARCAD */
+             DLTPGM     PGM(&LIBOBJ/&PGM)
+             MONMSG     MSGID(CPF0000)
+             ADDBNDDIRE BNDDIR(OCSSTD) OBJ((*LIBL/&PGM *SRVPGM))
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(SRVPGM_END)
+             ENDDO
+             GOTO       CMDLBL(SRVPGM_END)
+ SRVPGM_ALL:
+             CRTSRVPGM  SRVPGM(&LIBOBJ/&PGM) EXPORT(*ALL) +
+                          DETAIL(*FULL)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(SRVPGM_END)
+             ENDDO
+             CALLSUBR   SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE('CRTSRVPGM')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(&LIB)
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(&LIBOBJ)
+             CHGVAR     VAR(&ARC_PGM)     VALUE(&PGM)
+             CHGVAR     VAR(&ARC_EXPORT)  VALUE('*ALL')
+             CHGVAR     VAR(&ARC_DETAIL)  VALUE('*FULL')
+             CALLSUBR   SUBR(ARCD02)
+/****************************************************ARCAD */
+/* DEVE RIMANERE IL MODULO COMPILATO                       */
+/*      DLTMOD     MODULE(&LIBOBJ/&PGM)                    */
+/*      MONMSG     MSGID(CPF0000)                          */
+/****************************************************ARCAD */
+             DLTPGM     PGM(&LIBOBJ/&PGM)
+             MONMSG     MSGID(CPF0000)
+             ADDBNDDIRE BNDDIR(OCSSTD) OBJ((*LIBL/&PGM *SRVPGM))
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CHGVAR     VAR(&ESITOCMP) VALUE('CE')
+             GOTO       CMDLBL(SRVPGM_END)
+             ENDDO
+             GOTO       CMDLBL(SRVPGM_END)
+ SRVPGM_END: ENDSUBR
+/*------------------------------------------------------------------*/
+/* Sbianca aree per ARCAD                                           */
+ ARCCLR:     SUBR       SUBR(ARCCLR)
+             CHGVAR     VAR(&ARC_CMD)     VALUE(' ')
+             CHGVAR     VAR(&ARC_LIB)     VALUE(' ')
+             CHGVAR     VAR(&ARC_LIBOBJ)  VALUE(' ')
+             CHGVAR     VAR(&ARC_SRCF)    VALUE(' ')
+             CHGVAR     VAR(&ARC_PGM)     VALUE(' ')
+             CHGVAR     VAR(&ARC_OBJTYP)  VALUE(' ')
+             CHGVAR     VAR(&ARC_COMMIT)  VALUE(' ')
+             CHGVAR     VAR(&ARC_OPT)     VALUE(' ')
+             CHGVAR     VAR(&ARC_CVTOPT)  VALUE(' ')
+             CHGVAR     VAR(&ARC_OPTIM)   VALUE(' ')
+             CHGVAR     VAR(&ARC_CMD)     VALUE(' ')
+             CHGVAR     VAR(&ARC_CMPOPT)  VALUE(' ')
+             CHGVAR     VAR(&ARC_INCFIL)  VALUE(' ')
+             CHGVAR     VAR(&ARC_GENLVL)  VALUE(' ')
+             CHGVAR     VAR(&ARC_DBG)     VALUE(' ')
+             CHGVAR     VAR(&ARC_DYNUSR)  VALUE(' ')
+             CHGVAR     VAR(&ARC_BNDDIR)  VALUE(' ')
+             CHGVAR     VAR(&ARC_ACTGRP)  VALUE(' ')
+             CHGVAR     VAR(&ARC_EXPORT)  VALUE(' ')
+             CHGVAR     VAR(&ARC_DETAIL)  VALUE(' ')
+             CHGVAR     VAR(&ARC_ALWCP)   VALUE(' ')
+             CHGVAR     VAR(&ARC_CLSCUR)  VALUE(' ')
+             CHGVAR     VAR(&ARC_SRTSEQ)  VALUE(' ')
+             CHGVAR     VAR(&ARC_GENOPT)  VALUE(' ')
+ ARCCLR_END: ENDSUBR
+/*------------------------------------------------------------------*/
+/* Arcad DTAARA01                                                   */
+ ARCD01:     SUBR       SUBR(ARCD01)
+    /* wss   CALL       PGM(COMPPCMP01) PARM(&ARC_CMD           + */
+             CALL       PGM(debkPCMP01) PARM(&ARC_CMD           +
+                                             &ARC_LIB           +
+                                             &ARC_LIBOBJ        +
+                                             &ARC_SRCF          +
+                                             &ARC_PGM           +
+                                             &ARC_OBJTYP        +
+                                             &ARC_COMMIT        +
+                                             &ARC_OPT           +
+                                             &ARC_CVTOPT        +
+                                             &ARC_OPTIM         +
+                                             &ARC_CMPOPT        +
+                                             &ARC_INCFIL        +
+                                             &ARC_GENLVL        +
+                                             &ARC_DBG           +
+                                             &ARC_DYNUSR        +
+                                             &ARC_BNDDIR)
+ ARCD01_END: ENDSUBR
+/*------------------------------------------------------------------*/
+/* Arcad DTAARA02                                                   */
+ ARCD02:     SUBR       SUBR(ARCD02)
+  /* wss     CALL       PGM(COMPPCMP02) PARM(&ARC_CMD           + */
+             CALL       PGM(debkPCMP02) PARM(&ARC_CMD           +
+                                             &ARC_LIB           +
+                                             &ARC_LIBOBJ        +
+                                             &ARC_SRCF          +
+                                             &ARC_PGM           +
+                                             &ARC_COMMIT        +
+                                             &ARC_OPT           +
+                                             &ARC_CVTOPT        +
+                                             &ARC_OPTIM         +
+                                             &ARC_CMPOPT        +
+                                             &ARC_INCFIL        +
+                                             &ARC_GENLVL        +
+                                             &ARC_DBG           +
+                                             &ARC_DYNUSR        +
+                                             &ARC_BNDDIR        +
+                                             &ARC_ACTGRP        +
+                                             &ARC_EXPORT        +
+                                             &ARC_DETAIL        +
+                                             &ARC_ALWCP         +
+                                             &ARC_CLSCUR        +
+                                             &ARC_SRTSEQ        +
+                                             &ARC_GENOPT)
+ ARCD02_END: ENDSUBR
+             ENDPGM

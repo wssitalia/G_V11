@@ -1,0 +1,35 @@
+/********************************************************************/
+/*                                                                  */
+/* RICEVE 2 PARAMETRI                                               */
+/* &APP  LUNGO 3 APPLICAZIONE    10                                 */
+/* &VER  LUNGO 8 VERSIONE                                           */
+/*                                                                  */
+/* LEGGE IL FILE INFVE0F REPERISCE IL RECORD E SCRIVE L'AREA DATI   */
+/* APP_EPM (nella lib richiesta dal chiamante (meglio QTEMP))       */
+/* ESEMPIO :                                                        */
+/* UCF1.00.A00SPGM001CL                                             */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&APP &VER &NOMLIS)
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VER) TYPE(*CHAR) LEN(8)
+             DCL        VAR(&NOMDTA) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&NOMLIS) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VALORE) TYPE(*CHAR) LEN(2000)
+             CHGVAR     VAR(&NOMDTA) VALUE(&APP *tCAT '_EPM')
+
+/********************************************************************/
+/*   PER EVITARE PROBLEMI PRIMA PULISCO L'ORIGINALE                 */
+/********************************************************************/
+             CRTDTAARA  DTAARA(&NOMLIS/&NOMDTA) TYPE(*CHAR) +
+                          LEN(2000)
+             MONMSG     MSGID(CPF0000)
+             CHGDTAARA  DTAARA(&NOMLIS/&NOMDTA *ALL) VALUE(' ')
+             MONMSG     MSGID(CPF0000)
+
+             CALL       PGM(INFVE2) PARM(&APP &VER &VALORE)
+
+             CHGDTAARA  DTAARA(&NOMLIS/&NOMDTA *ALL) VALUE(&VALORE)
+             MONMSG     MSGID(CPF0000)
+/*                                                                  */
+      ENDPGM

@@ -1,0 +1,21 @@
+             PGM
+             MONMSG     MSGID(CPF0000)
+
+             CHGSYSLIBL LIB(ARC10_wss) OPTION(*remove)   /* tool pgm */
+             MONMSG     MSGID(CPF0000)
+             CHGSYSLIBL LIB(ARCAD_db ) OPTION(*remove)   /* tool dati istanza */
+             MONMSG     MSGID(CPF0000)
+  /*         CHGSYSLIBL LIB(ARCad_ENG) OPTION(*remove)      arcad istanza */
+  /*         MONMSG     MSGID(CPF0000)        */
+             CHGSYSLIBL LIB(ARCad_PRD) OPTION(*remove)   /* arcad istanza */
+             MONMSG     MSGID(CPF0000)
+
+             CHGSYSLIBL LIB(ARCAD_ENG) OPTION(*REMOVE)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(RIMOSSA))
+             /* se rimossa pulisco qtemp da tutti gli oggetti di arcad */
+             CLRLIB     LIB(QTEMP)
+             MONMSG     MSGID(CPF0000)
+
+RIMOSSA:
+
+             ENDPGM

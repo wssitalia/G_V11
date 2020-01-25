@@ -1,0 +1,41 @@
+/*----------------------------------------------------------------------------*/
+/*  imposta o resetta CCSID                                                   */
+/*----------------------------------------------------------------------------*/
+             PGM        PARM(&OPERAZIONE)
+             DCL        VAR(&OPERAZIONE) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&CCSID) TYPE(*DEC) LEN(5 0)
+             DCL        VAR(&LANGID) TYPE(*CHAR) LEN(3)
+             DCL        VAR(&CNTRYID) TYPE(*CHAR) LEN(2)
+             DCL        VAR(&ALFA) TYPE(*CHAR) LEN(5)
+
+             CRTDUPOBJ  OBJ(WSSCCSID) FROMLIB(*LIBL) +
+                          OBJTYPE(*DTAARA) TOLIB(QTEMP)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ESISTE))
+
+             RTVJOBA                  CCSID(&CCSID)
+             CHGVAR     VAR(&ALFA) VALUE(&CCSID)
+             CHGDTAARA  DTAARA(QTEMP/WSSCCSID (11 5)) VALUE(&ALFA)
+
+             RTVJOBA    LANGID(&LANGID)
+             CHGDTAARA  DTAARA(QTEMP/WSSCCSID (61 3)) VALUE(&LANGID)
+
+             RTVJOBA    CNTRYID(&CNTRYID)
+             CHGDTAARA  DTAARA(QTEMP/WSSCCSID (111 2)) VALUE(&CNTRYID)
+ESISTE:
+             IF         COND(&OPERAZIONE *EQ 'R') THEN(DO)
+             RTVDTAARA  DTAARA(QTEMP/WSSCCSID (11 5)) RTNVAR(&ALFA)
+             CHGVAR     VAR(&CCSID) VALUE(&ALFA)
+             RTVDTAARA  DTAARA(QTEMP/WSSCCSID (61 3)) RTNVAR(&LANGID)
+             RTVDTAARA  DTAARA(QTEMP/WSSCCSID (111 2)) RTNVAR(&CNTRYID)
+             CHGJOB     LANGID(&LANGID) CNTRYID(&CNTRYID) CCSID(&CCSID)
+             RETURN
+             ENDDO
+
+             RTVDTAARA  DTAARA(QTEMP/WSSCCSID (1 5)) RTNVAR(&ALFA)
+             CHGVAR     VAR(&CCSID) VALUE(&ALFA)
+             RTVDTAARA  DTAARA(QTEMP/WSSCCSID (51 3)) RTNVAR(&LANGID)
+             RTVDTAARA  DTAARA(QTEMP/WSSCCSID (101 2)) RTNVAR(&CNTRYID)
+             CHGJOB     LANGID(&LANGID) CNTRYID(&CNTRYID) CCSID(&CCSID)
+             RETURN
+
+   endpgm

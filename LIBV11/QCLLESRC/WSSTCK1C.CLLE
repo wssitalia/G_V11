@@ -1,0 +1,12 @@
+             PGM        PARM(&APP &VER)
+             DCL        VAR(&lib) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&app) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ver) TYPE(*CHAR) LEN(8)
+
+             CHGVAR     VAR(&LIB) VALUE(&APP *TCAT 'LST')
+             RMVLIBLE   LIB(&LIB)
+             MONMSG     MSGID(CPF0000)
+             ADDLIBLE   LIB(&LIB)
+             MONMSG     MSGID(CPF0000)
+             CALL       PGM(WSSTCK1) PARM(&APP &VER)
+   ENDPGM

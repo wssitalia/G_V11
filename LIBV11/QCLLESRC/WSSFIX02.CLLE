@@ -1,0 +1,11 @@
+             PGM
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10) VALUE(QTEMP)
+             DCL        VAR(&OBJ) TYPE(*CHAR) LEN(10) VALUE(WSSPROVA)
+             DCL        VAR(&TIPO) TYPE(*CHAR) LEN(10) VALUE(*PGM)
+             DCL        VAR(&OWNER) TYPE(*CHAR) LEN(10) VALUE(ARCAD)
+             DCL        VAR(&ADOPT) TYPE(*CHAR) LEN(10) VALUE(*OWNER)
+
+             CALL       PGM(ARCAD_FIX/AAFIX43001) PARM(&LIB &OBJ +
+                          &TIPO &OWNER &ADOPT)
+             DSPPGM     PGM(ARC10_WSS/ARCADOCEXE)
+   ENDPGM

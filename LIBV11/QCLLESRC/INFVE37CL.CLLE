@@ -1,0 +1,16 @@
+/********************************************************************/
+/*                                                                  */
+/*                                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&LIB &OBJ &TYP &USA &DATA &USER)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&OBJ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&TYP) TYPE(*CHAR) LEN(7)
+             DCL        VAR(&USA) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&DATA) TYPE(*CHAR) LEN(13)
+             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+             RTVOBJD    OBJ(&LIB/&OBJ) OBJTYPE(&TYP) USRDFNATR(&USA) +
+                          CRTDATE(&DATA) CRTUSER(&USER)
+             MONMSG     MSGID(CPF0000)
+ FINE:       ENDPGM

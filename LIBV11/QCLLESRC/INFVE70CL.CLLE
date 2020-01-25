@@ -1,0 +1,55 @@
+/********************************************************************/
+/*                                                                  */
+/*                                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM
+             DCLF       FILE(QTEMP/INFVE300F)
+             DCL        VAR(&MOOBJ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&MOOBTP)  TYPE(*CHAR) LEN(7)
+             DCL        VAR(&MOOBLB)  TYPE(*CHAR) LEN(10)
+             DCL        VAR(&MOTCPL)  TYPE(*CHAR) LEN(7)
+             DCL        VAR(&TIPO)  TYPE(*CHAR) LEN(7)
+             DCL        VAR(&TXT)  TYPE(*CHAR) LEN(70)
+
+             DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+/* lib in base a istanza */
+             CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+
+
+             DLTF QTEMP/INFVE499F
+             MONMSG CPF0000
+             DLTF QTEMP/INFVE500F
+             MONMSG CPF0000
+             CRTSRCPF   FILE(QTEMP/INFVE499F) RCDLEN(120) TEXT('File +
+                          di work')
+             MONMSG CPF0000
+             CRTSRCPF   FILE(QTEMP/INFVE500F) RCDLEN(120) TEXT('File +
+                          di work')
+             MONMSG CPF0000
+             ADDLIBLE &libPRD
+             MONMSG CPF0000
+/* --------------------------------------------------------------- */
+ SU:         RCVF
+             MONMSG     MSGID(CPF0864) EXEC(GOTO CMDLBL(FINE))
+/* --------------------------------------------------------------- */
+             CHGVAR     VAR(&TXT) VALUE(&MOOBLB *CAT ' ' *CAT &MOOBJ +
+                          *CAT ' ' *CAT &MOOBTP *CAT ' ' *CAT &MOTCPL)
+             TAATOOL/ADDSRCMBR SRCFILE(QTEMP/INFVE499F) MBR(&MOOBJ) +
+                          TYPE(TXT) TEXT(&TXT)
+             MONMSG CPF0000
+             CHGVAR     VAR(&TIPO) VALUE(%SST(&MOOBTP 2 6))
+             MONMSG CPF0000
+             TAATOOL/CHGSRCTYP SRCFILE(QTEMP/INFVE499F) +
+                          FROMTYPE(TXT) TOTYPE(&TIPO)
+/* --------------------------------------------------------------- */
+                        CPYSRCF FROMFILE(QTEMP/INFVE499F) +
+                          TOFILE(QTEMP/INFVE500F) FROMMBR(&MOOBJ) +
+                          TOMBR(&MOOBJ) MBROPT(*ADD)
+             MONMSG CPF0000
+             RMVM       FILE(QTEMP/INFVE499F) MBR(&MOOBJ)
+             MONMSG CPF0000
+/* --------------------------------------------------------------- */
+             GOTO       CMDLBL(SU)
+/* --------------------------------------------------------------- */
+ FINE:       ENDPGM

@@ -1,0 +1,32 @@
+             PGM        PARM(&APP &VER &attuale)
+             DCL        VAR(&wrk) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&TXT) TYPE(*CHAR) LEN(100)
+             DCL        VAR(&TXX) TYPE(*CHAR) LEN(100)
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VER) TYPE(*CHAR) LEN(8)
+             DCL        VAR(&ATTUALE) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10) VALUE(ARCAD_NET)
+             DCLF       FILE(WSSTXTSAVF)
+
+             CHGVAR     VAR(&WRK) VALUE(&APP *TCAT '*')
+             CHGVAR     VAR(&TXT) VALUE('ARCVER' *TCAT &APP *TCAT &VER)
+             CHGVAR     VAR(&TXX) VALUE('___VER' *TCAT &APP *TCAT &VER)
+             DSPOBJD    OBJ(ARCAD_NET/&WRK) OBJTYPE(*FILE) +
+                          OUTPUT(*OUTFILE) +
+                          OUTFILE(QTEMP/WSSTXTSAVF) OUTMBR(*FIRST +
+                          *REPLACE)
+
+loop:
+             RCVF
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(FINE))
+             IF         COND(%SST(&ODOBTX 1 17) *EQ &TXT) +
+                          THEN(CHGOBJD OBJ(&LIB/&ODOBNM) +
+                          OBJTYPE(*FILE) TEXT('Substituted->' *TCAT +
+                          &TXX))
+             GOTO       CMDLBL(LOOP)
+
+fine:
+
+             CHGOBJD    OBJ(&LIB/&ATTUALE) OBJTYPE(*FILE) TEXT(&TXT +
+                          *TCAT ' <- active do not touch')
+             ENDPGM

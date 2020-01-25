@@ -1,0 +1,47 @@
+             PGM        PARM(&LIBVER &LIBDATI &LIBPGM &FILE &tipo)
+             DCL        VAR(&tipo) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIBDATI) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIBVER) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIBPGM) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&NOME) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&FILE) TYPE(*CHAR) LEN(10)
+/* dati job  */
+             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&DATA) TYPE(*CHAR) LEN(6)
+             DCL        VAR(&aa) TYPE(*CHAR) LEN(2)
+             DCL        VAR(&gg) TYPE(*CHAR) LEN(2)
+             DCL        VAR(&ORA) TYPE(*CHAR) LEN(6)
+             DCL        VAR(&JOB) TYPE(*CHAR) LEN(6)
+             RTVJOBA    NBR(&JOB) CURUSER(&USER)
+             RTVSYSVAL  SYSVAL(QTIME) RTNVAR(&ORA)
+             RTVSYSVAL  SYSVAL(Qdate) RTNVAR(&data)
+             chgvar &aa %sst(&data 5 2)
+             chgvar &gg %sst(&data 1 2)
+             chgvar       %sst(&data 1 2) &aa
+             chgvar       %sst(&data 5 2) &gg
+/**/
+             RMVLIBLE   LIB(&LIBpgm)
+             MONMSG     MSGID(CPF0000)
+             addLIBLE   LIB(&LIBpgm)
+             MONMSG     MSGID(CPF0000)
+/* controllo se passato nome singolo */
+             CHGVAR     VAR(&NOME) VALUE(&FILE)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+                   CHGVAR     VAR(&NOME) VALUE('*ALL')
+                   /*  file fisici           */
+                   CALL       PGM(WSSA105c) PARM(&LIBVER &LIBDATI &nome)
+                   /*  ricostruzione file logici           */
+                   CALL       PGM(WSSA115C) PARM(&LIBVER &LIBDATI &nome)
+                   goto fine
+             enddo
+             IF         COND(&TIPO *EQ '*PF') THEN(DO)
+                   /*  file fisico singolo   */
+                   CALL       PGM(WSSA105c) PARM(&LIBVER &LIBDATI &nome)
+             enddo
+             IF         COND(&TIPO *EQ '*LF') THEN(DO)
+                   /*  file logico singolo   */
+                   CALL       PGM(WSSA115c) PARM(&LIBVER &LIBDATI &nome)
+             enddo
+fine:
+/*           CALL       PGM(WSSA101) PARM('  ' &USER &JOB &DATA &ORA)  */
+             ENDPGM

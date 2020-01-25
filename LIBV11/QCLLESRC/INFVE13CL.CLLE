@@ -1,0 +1,71 @@
+/********************************************************************/
+/*                                                                  */
+/*  Questo clp viene richiamato dalle macro integrb-trfprdb-distrib */
+/*  ex Run User Transfer Program  CALL PGM(&ZF/&ZD)                 */
+/*  in sostanza evita che la call indicata in parver possa          */
+/*  terminare in errore                                             */
+/*                                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&LIB &PGM)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PGM) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&user) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&curlib) TYPE(*CHAR) LEN(10)
+             RTVJOBA    USER(&USER) CURLIB(&CURLIB)
+/*---------------------------------------------------------------*/
+/*--  controlla la libreria  se blanks mette *libl             --*/
+/*---------------------------------------------------------------*/
+             IF         COND(&LIB *EQ '          ') THEN(DO)
+             CHGVAR     VAR(&LIB) VALUE('*LIBL     ')
+             ENDDO
+/*---------------------------------------------------------------*/
+/*--  controllo il pgm    se blanks goto fine                  --*/
+/*---------------------------------------------------------------*/
+ IF         COND(&PGM *EQ '          ') THEN(GOTO CMDLBL(FINE))
+/*--------------------------------------------------------------------*/
+/*--  Contr. che esista la combinazione libreria pgm else goto fine --*/
+/*--------------------------------------------------------------------*/
+             IF         COND(&LIB *NE '*LIBL     ') THEN(DO)
+             CHKOBJ     OBJ(QSYS/&LIB) OBJTYPE(*LIB)
+             MONMSG     MSGID(CPF9801) EXEC(do)
+             SNDUSRMSG  MSG('ATTENZIONE - Il pogramma richiesto' +
+                          *BCAT &PGM *BCAT 'non esiste' *BCAT +
+                          'nella libreria' *BCAT &LIB *BCAT '.' +
+                          *BCAT CURLIB *BCAT &CURLIB) +
+                          MSGTYPE(*INFO) TOUSR(&USER)
+             CHGJOB     LOG(4 00 *SECLVL)
+                          goto fine
+                                            enddo
+/*--------------------------------------------------------------------*/
+/*--  Se sono qui vuol dire che la libreria esiste ed è <> da *LIBL --*/
+/*--  allora la aggiungo alla lista                                 --*/
+/*--------------------------------------------------------------------*/
+             ADDLIBLE   LIB(&LIB)
+             MONMSG     MSGID(CPF0000)
+             ENDDO
+ CHKOBJ     OBJ(&LIB/&PGM) OBJTYPE(*PGM)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO CMDLBL(FINE))
+/*--------------------------------------------------------------------*/
+/*-- Ho passato tutti i controlli quindi posso fare la CALL         --*/
+/*--------------------------------------------------------------------*/
+             ADDLIBLE   LIB(OCSARCAD) POSITION(*LAST)
+             MONMSG     MSGID(CPF0000)
+             CALL       PGM(&LIB/&PGM)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             SNDUSRMSG  MSG('ATTENZIONE - Si è verificato un errore +
+                          durante l''elaborazione del pogramma' +
+                          *BCAT &PGM *BCAT 'nella libreria' *BCAT +
+                          &LIB *TCAT '.' *BCAT CURLIB *BCAT +
+                          &CURLIB) MSGTYPE(*INFO) TOUSR(&USER)
+             CHGJOB     LOG(4 00 *SECLVL)
+             GOTO       CMDLBL(FINE)
+             ENDDO
+/*--------------------------------------------------------------------*/
+/*-- qui potremmo scrivere un log .... pgm a buon fine o no ...     --*/
+/*--------------------------------------------------------------------*/
+
+
+
+
+ FINE:       ENDPGM

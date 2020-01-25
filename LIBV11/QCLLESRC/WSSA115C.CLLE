@@ -1,0 +1,37 @@
+             PGM        PARM(&NEW &OLD &NAME)
+             DCL        VAR(&OLD) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&NEW) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&log) TYPE(*CHAR) LEN(256)
+             DCL        VAR(&NAME) TYPE(*CHAR) LEN(10)
+/* inizio log */
+             CHGVAR     VAR(&LOG) VALUE('Allineamento file logici +
+                          INIZIO +
+                          -------------------------------------------+
+                          --')
+             CALL       PGM(WSSA101C) PARM(&log)
+/* pulizia file di lavoro */
+             CLRPFM     FILE(WAlflo00F)
+             CLRPFM     FILE(WANEWF00F)
+             CLRPFM     FILE(WAOLDF00F)
+/* display dei formati per vedere le differenze */
+             DSPFD      FILE(&OLD/&NAME) TYPE(*RCDFMT) +
+                          OUTPUT(*OUTFILE) FILEATR(*LF) +
+                          OUTFILE(WAOLDF00F) OUTMBR(*FIRST *REPLACE)
+             MONMSG     MSGID(CPF3020)
+             MONMSG     MSGID(CPF3012)
+             DSPFD      FILE(&NEW/&NAME) TYPE(*RCDFMT) +
+                          OUTPUT(*OUTFILE) FILEATR(*LF) +
+                          OUTFILE(WANEWF00F) OUTMBR(*FIRST *REPLACE)
+             MONMSG     MSGID(CPF3020)
+             MONMSG     MSGID(CPF3012)
+/*  preparo lista file da sostituire/aggiungere */
+             CALL       PGM(WSSA115) PARM(&NEW &OLD &name)
+/*  ricrea logici        */
+             CALL       PGM(WSSA116) PARM(&NEW &OLD)
+/* fine   log */
+             CHGVAR     VAR(&LOG) VALUE('Allineamento file logici +
+                          FINE   +
+                          -------------------------------------------+
+                          --')
+             CALL       PGM(WSSA101C) PARM(&log)
+             ENDPGM

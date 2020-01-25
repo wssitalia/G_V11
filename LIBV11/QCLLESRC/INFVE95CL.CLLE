@@ -1,0 +1,22 @@
+/********************************************************************/
+/*                                                                  */
+/*                                                                  */
+/*   CL - CHE VIENE LANCIATO DAL COMANDO SYSREP  IN  ARCAD_ENG      */
+/*                                                                  */
+/*                                                                  */
+/*                                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM
+
+             DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+/* lib in base a istanza */
+             CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+
+
+             ADDLIBLE &LIBPRD
+             MONMSG CPF0000
+             CALL INFVE95
+             RMVLIBLE &LIBPRD
+             MONMSG CPF0000
+             ENDPGM

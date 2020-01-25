@@ -1,0 +1,30 @@
+/********************************************************************/
+/*                                                                  */
+/*                                                                  */
+/*   SE TROVA IL SAVF NELLA LIBRERIA IULIBR   RISPONDE S = TROVATO  */
+/*   AL PROGRAMMA CHE ACCENDE L'IDICATORE SUL SAVE DELLA LIBRERIA   */
+/*                                                                  */
+/*                                                                  */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&LIB &SN &SN1 &LIBSAVF)
+             DCL        VAR(&LIBSAVF) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SN) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&SN1) TYPE(*CHAR) LEN(1)
+
+             CHKOBJ     OBJ(&LIBSAVF/&LIB) OBJTYPE(*FILE)
+             MONMSG     MSGID(CPF9801 CPF9802) EXEC(GOTO NO)
+
+             CHGVAR     VAR(&SN) VALUE('S')
+             GOTO       FINE
+
+ NO:         CHGVAR     VAR(&SN) VALUE('N')
+
+ FINE:
+         CHGVAR     VAR(&SN1)  VALUE('S')
+             CHKOBJ     OBJ(QSYS/&LIB) OBJTYPE(*LIB)
+             MONMSG     MSGID(CPF9801 CPF9802) EXEC(DO)
+         CHGVAR     VAR(&SN1)  VALUE('N')
+                        ENDDO
+             ENDPGM

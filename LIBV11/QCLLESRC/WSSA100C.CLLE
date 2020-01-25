@@ -1,0 +1,60 @@
+             PGM        PARM(&CMD &PARAMETRI &psdscaller)
+/* PARAMETRI */
+             DCL        VAR(&CMD) TYPE(*CHAR) LEN(256)
+             DCL        VAR(&PSDSCALLER) TYPE(*CHAR) LEN(1024)
+             DCL        VAR(&PARAMETRI) TYPE(*CHAR) LEN(2820) /*20 +
+                          elem */
+             DCL        VAR(&MSG_ID) TYPE(*CHAR) LEN(140)
+             DCL        VAR(&MSG_TXT) TYPE(*CHAR) LEN(2640)
+             DCL        VAR(&MSG_SEV) TYPE(*CHAR) LEN(40)
+             DCL        VAR(&IDX) TYPE(*dec) LEN(5 0)
+             DCL        VAR(&POS_ID) TYPE(*dec) LEN(5 0)
+             DCL        VAR(&POS_TXT) TYPE(*dec) LEN(5 0)
+             DCL        VAR(&POS_SEV) TYPE(*dec) LEN(5 0)
+/* dati messaggi */
+             DCL        VAR(&MSGID) TYPE(*CHAR) LEN(7)
+             DCL        VAR(&KEYVAR) TYPE(*CHAR) LEN(4)
+             DCL        VAR(&MSGTXT) TYPE(*CHAR) LEN(132)
+             DCL        VAR(&MSGLEN) TYPE(*DEC) LEN(5 0)
+             DCL        VAR(&MSGDTA) TYPE(*CHAR) LEN(512)
+             DCL        VAR(&MSGDTALEN) TYPE(*DEC) LEN(5 0)
+             DCL        VAR(&MSGID) TYPE(*CHAR) LEN(7)
+             DCL        VAR(&SEv) TYPE(*dec) LEN(2 0)
+/* monitor tutti msg */
+             MONMSG     MSGID(CPF0000) EXEC(GOTO MSGSTORE)
+             CHGVAR     VAR(&PARAMETRI) VALUE(' ')
+/* esecuzione comando */
+             CALL       PGM(QCMDEXC) PARM(&CMD 256)
+/* comunque copia in array i messaggi */
+ MSGSTORE:
+             RCVMSG     MSGTYPE(*FIRST) RMV(*NO) KEYVAR(&KEYVAR) +
+                          MSG(&MSGTXT) MSGLEN(&MSGLEN) +
+                          MSGID(&MSGID) SEV(&SEV)
+             GOTO       CMDLBL(CONTROLLO)
+ LOOP:
+             RCVMSG     MSGTYPE(*NEXT) MSGKEY(&KEYVAR) RMV(*NO) +
+                          KEYVAR(&KEYVAR) MSG(&MSGTXT) +
+                          MSGLEN(&MSGLEN) MSGID(&MSGID) SEV(&SEV)
+ CONTROLLO:
+             IF         COND(&KEYVAR *NE ' ') THEN(DO)
+                /* imposta posizioni in array */
+                CHGVAR     VAR(&IDX) VALUE(&IDX + 1)
+                CHGVAR     VAR(&pos_id) VALUE(&IDX * 7 -6)
+                CHGVAR     VAR(&pos_txt) VALUE(&IDX * 132 -131)
+                CHGVAR     VAR(&pos_sev) VALUE(&IDX * 2 -1)
+                /* copia in array */
+                CHGVAR     VAR(%SST(&msg_id    &pos_id    7)) VALUE(&msgid)
+                CHGVAR     VAR(%SST(&msg_txt   &pos_txt 132)) VALUE(&msgtxt)
+                CHGVAR     VAR(%SST(&msg_sev   &pos_sev   2)) VALUE(&sev  )
+                /* cerca prossimo */
+                GOTO       CMDLBL(LOOP)
+             ENDDO
+/*  se esistono messaggi li scrive sul log */
+             CHGVAR     VAR(%SST(&PARAMETRI 1 140)) VALUE(&MSG_ID)
+             CHGVAR     VAR(%SST(&PARAMETRI 141 2640)) VALUE(&MSG_TXT)
+             CHGVAR     VAR(%SST(&PARAMETRI 2781 40)) VALUE(&MSG_SEV)
+             IF         COND(&PARAMETRI *NE ' ') THEN(DO)
+                /*  scrittura log        */
+                CALL       PGM(WSSA100) PARM(&CMD &PARAMETRI &PSDSCALLER)
+             ENDDO
+             ENDPGM

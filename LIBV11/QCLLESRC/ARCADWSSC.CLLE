@@ -1,0 +1,15 @@
+             PGM
+
+arcadtmp
+             MONMSG     MSGID(CPF0000)
+             call wssmnu
+             MONMSG     MSGID(CPF0000)
+
+
+
+
+
+
+
+
+             ENDPGM

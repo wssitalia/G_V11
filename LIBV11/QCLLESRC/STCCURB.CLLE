@@ -1,0 +1,17 @@
+PGM            PARM(&LIB &PGM &USER)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PGM) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+             CHGOBJOWN  OBJ(&LIB/&PGM) OBJTYPE(*PGM) NEWOWN(&USER) +
+                          CUROWNAUT(*SAME)
+             MONMSG     MSGID(CPF0000)
+
+
+
+
+
+
+
+
+
+   ENDPGM

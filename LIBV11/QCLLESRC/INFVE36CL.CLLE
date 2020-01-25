@@ -1,0 +1,133 @@
+/********************************************************************/
+/*                                                                  */
+/*  PARAMETRI : &AP    APPLIZAZIIONE    3    10                     */
+/*              &VER   VERSIONE         8                           */
+/*              &COSA  COSA FARE        1                           */
+/*              &ENVALI ENV X INTEGR    1    10                     */
+/*              &IUSIVA CAMBIO LIBRERIE 1                           */
+/*             &W_IUAMP lettera x repos  1                          */
+/*             &W_IUAMP lettera per disr 1                          */
+/*             &W_integ macro x integraz 10                         */
+/*                                                                  */
+/*     &COSA PUO CONTENERE  V=VALIDA UNA VERSIONE                   */
+/*                          C=PASSA LA VERSIONE IN C                */
+/*                          T=PASSA LA VERSIONE IN R                */
+/*                          Z=PASSA LA VERSIONE IN Z                */
+/*                          P=PASSA LA VERSIONE IN REPOSITORY       */
+/*                          D=DISTRIBUISCE                          */
+/*     IMPORTANTE : IL CLP  ESEGUE UNA SOLA OPERAZIONE POI ESCE     */
+/*                                                                  */
+/********************************************************************/
+             PGM        PARM(&AP &VER &COSA &ENVALI &IUSIVA &W_IUAMP +
+                          &W_IUAMD &W_INTEG)
+
+             DCL        VAR(&AP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&VER) TYPE(*CHAR) LEN(8)
+             DCL        VAR(&COSA) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&ENVALI) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&IUSIVA) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ENVSVI) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&W_IUAMP) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&W_IUAMD) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&W_INTEG) TYPE(*CHAR) LEN(10)
+DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+ /* lib in base a istanza */
+              CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+
+             RTVJOBA    USER(&USER)
+/*---------------------------------------------------------------*/
+/*--        rileva la lettera relariva all'env di sviluppo     --*/
+/*---------------------------------------------------------------*/
+             ADDLIBLE   LIB(&libPRD) POSITION(*LAST)
+             MONMSG CPF0000
+             CALL       PGM(INFVE36E) PARM(&AP &ENVSVI)
+/*---------------------------------------------------------------*/
+/*--        NO REPUBBLICA CECA  NO BULGARIA ALLORA ITALIA      --*/
+/*---------------------------------------------------------------*/
+             CHGJOB     LOG(4 00 *SECLVL) LOGCLPGM(*YES) LANGID(ITA) +
+                          CNTRYID(IT) CCSID(65535)
+             MONMSG CPF0000
+/*---------------------------------------------------------------*/
+/*--        ESEGUE LA VALIDAZIONE                              --*/
+/*---------------------------------------------------------------*/
+ DOPO:
+             IF         COND(&COSA *EQ 'V') THEN(DO)
+             ?          AINZCURENV APP(&AP) VERSION(&VER) ENVTYPE(*TST)
+             MONMSG CPF0000
+
+/*---------------------------------------------------------------*/
+/*--                                                           --*/
+/*- CHIEDE IL CAMBIO DELLA LISTA DI LIBRERIE                  --*/
+/*-- COMANDATO DAL FLAG    INFPAR0F/IUSIVA                     --*/
+/*--                                                           --*/
+/*---------------------------------------------------------------*/
+
+             IF         COND(&IUSIVA *EQ 'S') THEN(DO)
+             CALL       PGM(INFV361)
+             MONMSG CPF0000
+
+             AEDTAPPLBL APP(&AP) ENV(&ENVSVI) VERSION(&VER)
+             MONMSG CPF0000
+             ENDDO
+
+/*---------------------------------------------------------------*/
+/*--    AGGIUNTA UTENTE IN VALIDATORI                         --*/
+/*---------------------------------------------------------------*/
+             AADDVERSTF USRPRF(&USER) APP(&AP) ENV(&ENVSVI) +
+                          VERSION(&VER) SIGNATURE(*YES)
+             MONMSG MSG1977
+             ?          AVLDVER APP(&AP) ENV(&ENVSVI) VERSION(&VER)
+             MONMSG CPF0000
+
+             ADDLIBLE   LIB(&libPRD) POSITION(*LAST)
+             MONMSG CPF0000
+             CALL       PGM(INFVE36) PARM(&AP &VER)
+             MONMSG CPF0000
+             GOTO       CMDLBL(FINE)
+             ENDDO
+/*---------------------------------------------------------------*/
+/*--        ESEGUE IL PASSAGGIO IN REPOSITORY                  --*/
+/*---------------------------------------------------------------*/
+             IF         COND(&COSA *EQ &W_IUAMP) THEN(DO)
+             ?          TFRPROD APP(&AP) ENV(&ENVSVI) VERSION(&VER)
+             MONMSG CPF0000
+             GOTO       CMDLBL(FINE)
+             ENDDO
+/*---------------------------------------------------------------*/
+/*--        ESEGUE LA DISTRIBUZIONE                            --*/
+/*---------------------------------------------------------------*/
+
+             IF         COND(&COSA *EQ W_IUAMD) THEN(DO)
+             ?          DISTRIB APP(&AP) VERSION(&VER) SITE(*SELECT) +
+                          ENV(*SELECT) SENDMODE(NET) SENDTYPE(*PTF) +
+                          SNDDOC('N') SNDVERINF('N')
+ /*-  DA SISTEMARE SU VERS ARCAD   TEMPLIB(*YES) SNDDOC('N') SNDVERINF('N')  */
+             MONMSG CPF0000
+             GOTO       CMDLBL(FINE)
+             ENDDO
+
+/*---------------------------------------------------------------*/
+/*--  SE &COSA È DIVERSA DA REPOSITORY DISTRIBUZIONE           --*/
+/*--                        E VALIDAZIONE                      --*/
+/*- STIAMO FACENDO UN ITEGR QUINDI PRENDO E PASSO IL           --*/
+/*- CAMPO ALIAS NELL' AMBIENTE *ENV                            --*/
+/*---------------------------------------------------------------*/
+             IF         COND(&W_INTEG *EQ 'INTEGR    ') THEN(DO)
+             ?          INTEGR APP(&AP) ENV(&ENVSVI) VERSION(&VER) +
+                          TOENV(&ENVALI)
+             MONMSG CPF0000
+             GOTO       CMDLBL(FINE)
+             ENDDO
+             IF         COND(&W_INTEG *EQ 'DGTESITG  ') THEN(DO)
+/* temporaneamente disabilitato per migrazione */
+   /*        ?          DGTESITG APPID(&AP) TSTID(&ENVSVI) +   */
+   /*                     VERSION(&VER) TOTSTID(&ENVALI)       */
+   /*        MONMSG CPF0000                                    */
+             GOTO       CMDLBL(FINE)
+             ENDDO
+
+ FINE:       ADDLIBLE   LIB(&libPRD) POSITION(*LAST)
+             MONMSG CPF0000
+
+             ENDPGM

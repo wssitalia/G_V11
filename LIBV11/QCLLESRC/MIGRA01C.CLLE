@@ -1,0 +1,20 @@
+pgm
+             DCLF       FILE(QTEMP/MEMBRILOG)
+             DCL        VAR(&GIRO) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10) +
+                          VALUE('ARCAD_ENG')
+
+
+             CHGVAR     VAR(&GIRO) VALUE('0')
+loop:
+             rcvf
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(FINE))
+
+             IF         COND(&GIRO *NE '0') THEN(DO)
+             RMVM       FILE(&LIB/&MLFILE) MBR(&MLNAME)
+             ENDDO
+
+             CHGVAR     VAR(&GIRO) VALUE('1')
+             GOTO       CMDLBL(LOOP)
+fine:
+   endpgm

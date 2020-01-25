@@ -1,0 +1,80 @@
+             PGM        PARM(&cur &APP &ENV &VER)
+
+             DCL        VAR(&idx) TYPE(*dec) LEN(4 0)
+             DCL        VAR(&LISTA) TYPE(*CHAR) LEN(2000)
+             DCL        VAR(&dtaara) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&lib) TYPE(*CHAR) LEN(10)
+
+             DCL        VAR(&prec) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&cur) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&APP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&env) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ver) TYPE(*CHAR) LEN(8)
+
+
+      DCL        VAR(&LIBPRD ) TYPE(*CHAR) LEN(10)
+      /*     DSPLIBL    OUTPUT(*PRINT)                 */
+             CHGVAR     VAR(&dtaara) VALUE('OCS_' *tcat &APP)
+             RTVDTAARA  DTAARA(&DTAARA *ALL) RTNVAR(&LISTA)
+/* reset librerie           */
+             CHGLIBL    LIBL(*NONE)
+/*           RMVLIBLE   LIB($UTILOBJ)                 */
+/*           MONMSG     MSGID(CPF0000)               */
+/*           RMVLIBLE   LIB(QGPL)                   */
+/*           MONMSG     MSGID(CPF0000)             */
+/*           RMVLIBLE   LIB($UTILSRC)             */
+/*           MONMSG     MSGID(CPF0000)           */
+/*           RMVLIBLE   LIB(QTEMP)              */
+/*           MONMSG     MSGID(CPF0000)         */
+/*           ADDLIBLE   LIB($UTILOBJ)       */
+/*           ADDLIBLE   LIB(QGPL)           */
+/*           ADDLIBLE   LIB($UTILSRC)       */
+/*           ADDLIBLE   LIB(QTEMP)          */
+
+/*           CHGVAR     VAR(&prec) VALUE('QTEMP')     */
+             CHGVAR     VAR(&IDX) VALUE(1)
+loop:
+             CHGVAR     VAR(&LIB) VALUE(%SST(&LISTA &IDX 10))
+             IF         COND(&LIB = '          ') THEN(GOTO +
+                          CMDLBL(FINE))
+   /* aggiunta librerie di versione eventuale   */
+
+             IF         COND(&LIB = '*VERSIONE*') THEN(do)
+             CHGVAR     VAR(&LIB) VALUE(' ')
+             CALL       PGM(ARCADOCR1) PARM(&CUR &APP &ENV &VER +
+                          &PREC &LIB)
+             MONMSG     MSGID(CPF0000) EXEC(CHGVAR VAR(&LIB) +
+                          VALUE('          '))
+
+                        IF         COND(&LIB = '          ') THEN(do)
+                            CHGVAR     VAR(&lib) VALUE(&prec)
+                        ENDDO
+             GOTO       CMDLBL(ITER)
+             ENDDO
+
+             RMVLIBLE   LIB(&LIB)
+             MONMSG     MSGID(CPF0000)
+             IF         COND(&prec *eq '          ') THEN(do)
+                        ADDLIBLE   LIB(&LIB)
+                        MONMSG     MSGID(CPF0000)
+             enddo
+             IF         COND(&prec *ne '          ') THEN(do)
+                        ADDLIBLE   LIB(&LIB) POSITION(*AFTER &prec)
+                        MONMSG     MSGID(CPF0000)
+             enddo
+
+iter:
+             CHGVAR     VAR(&prec) VALUE(&lib)
+             CHGVAR     VAR(&IDX) VALUE(&IDX + 10)
+             IF         COND(&IDX > 2000) THEN(GOTO CMDLBL(FINE))
+             GOTO       CMDLBL(LOOP)
+
+fine:
+             CHGCURLIB  CURLIB(&CUR)
+  /*         DSPLIBL    OUTPUT(*PRINT)      */
+      /*     DSPPGM     PGM(OATKCCKCC) OUTPUT(*PRINT)  */
+/* lib in base a istanza */
+             CALL       PGM(WSSLIBIST) PARM('PRD'    &LIBPRD )
+             ADDLIBLE   LIB(&LIBPRD)
+             MONMSG     MSGID(CPF0000)
+     ENDPGM

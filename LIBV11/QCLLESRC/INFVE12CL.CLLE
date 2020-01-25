@@ -1,0 +1,11 @@
+             PGM        PARM(&AP &VE)
+             DCL        VAR(&AP) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ve) TYPE(*CHAR) LEN(8)
+             DCL        VAR(&mo) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&pgm) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&lib) TYPE(*CHAR) LEN(10)
+             CALL       PGM(INFVE121) PARM(&AP &VE &MO &PGM &LIB)
+             ?          PARVER1 APPL(&AP) VERSION(&VE) ??MODAL(&MO) +
+                          ??NOMPGM(&PGM) ??LIBPGM(&LIB)
+             MONMSG     MSGID(CPF0000)
+      ENDPGM

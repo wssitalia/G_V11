@@ -1,0 +1,49 @@
+/*----------------------------------------------------------------------------*/
+/*  ritorna libreria istanza richiesta  da dtaara WSS                         */
+/*  se inserita istanza costruisce nome lib in cui cercare (ARCxx_ENG)        */
+/*  altrimenti cerca in libl                                                  */
+/*----------------------------------------------------------------------------*/
+             PGM        PARM(&TIPOLIB &LIB &ISTANZA)
+             DCL        VAR(&TIPOLIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ISTANZA) TYPE(*CHAR) LEN(2)
+             DCL        VAR(&ISTANZAWRK) TYPE(*CHAR) LEN(2)
+             DCL        VAR(&DTAARA) TYPE(*CHAR) LEN(10) +
+                          VALUE(WSSISTANZA)
+             DCL        VAR(&DTALIB) TYPE(*CHAR) LEN(10) VALUE(*LIBL)
+
+/* se inserita istanza compone nome lib */
+             CHGVAR     VAR(&ISTANZAWRK) VALUE(&ISTANZA)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(COMPOSTO))
+/* compone nome lib in cui trovare dtaara */
+             CHGVAR     VAR(&DTALIB) VALUE('*LIBL')
+
+composto:
+
+             IF         COND(&TIPOLIB *EQ 'CUST') THEN(DO)
+             RTVDTAARA  DTAARA(&DTALIB/&DTAARA (41 10)) RTNVAR(&LIB)
+             ENDDO
+
+             IF         COND(&TIPOLIB *EQ 'WSS') THEN(DO)
+             RTVDTAARA  DTAARA(&DTALIB/&DTAARA (1 10)) RTNVAR(&LIB)
+             ENDDO
+
+             IF         COND(&TIPOLIB *EQ 'ENG') THEN(DO)
+             RTVDTAARA  DTAARA(&DTALIB/&DTAARA (11 10)) RTNVAR(&LIB)
+             ENDDO
+
+             IF         COND(&TIPOLIB *EQ 'PRD') THEN(DO)
+             RTVDTAARA  DTAARA(&DTALIB/&DTAARA (21 10)) RTNVAR(&LIB)
+             ENDDO
+
+             IF         COND(&TIPOLIB *EQ 'NET') THEN(DO)
+             RTVDTAARA  DTAARA(&DTALIB/&DTAARA (31 10)) RTNVAR(&LIB)
+             ENDDO
+
+             CRTDTAARA  DTAARA(QTEMP/WSSLIBIST) TYPE(*CHAR) LEN(10) +
+                          VALUE(&LIB)
+             MONMSG     MSGID(CPF0000) EXEC(CHGDTAARA +
+                          DTAARA(QTEMP/WSSLIBIST *ALL) VALUE(&LIB))
+
+
+   endpgm

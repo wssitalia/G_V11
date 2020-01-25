@@ -1,0 +1,17 @@
+PGM            PARM(&LIB &PGM)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PGM) TYPE(*CHAR) LEN(10)
+             CHGOBJOWN  OBJ(&LIB/&PGM) OBJTYPE(*PGM) NEWOWN(OCS) +
+                          CUROWNAUT(*SAME)
+     CHGPGM PGM(&LIB/&PGM) USRPRF(*OWNER) USEADPAUT(*YES)
+
+
+
+
+
+
+
+
+
+
+   ENDPGM

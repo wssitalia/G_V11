@@ -1,0 +1,18 @@
+             PGM        PARM(&LIB &OBJ &TIPO &OWNER &ADOTTA)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&OBJ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&TIPO) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&OWNER) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ADOPT) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ADOTTA) TYPE(*CHAR) LEN(10)
+
+ /*   se non passato &ADOTTA imposto  same */
+             CHGVAR     VAR(&ADOPT) VALUE(&ADOTTA)
+             MONMSG     MSGID(CPF0000) EXEC(CHGVAR VAR(&ADOPT) +
+                          VALUE(*SAME))
+
+/* cambio owner  */
+             CHGOBJOWN  OBJ(&LIB/&OBJ) OBJTYPE(&TIPO) NEWOWN(&OWNER) +
+                          CUROWNAUT(*SAME)
+
+   ENDPGM

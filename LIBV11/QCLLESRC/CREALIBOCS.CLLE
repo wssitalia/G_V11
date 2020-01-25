@@ -1,0 +1,18 @@
+             PGM        PARM(&FIL &LIB)
+             DCL        VAR(&FIL) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DLTLIB     LIB(&FIL)
+                       MONMSG CPF0000
+
+             CRTLIB     LIB(&FIL)
+             RSTOBJ     OBJ(*ALL) SAVLIB(&FIL) DEV(*SAVF) +
+                          SAVF(&LIB/&FIL) MBROPT(*ALL) ALWOBJDIF(*ALL)
+
+             GRTOBJAUT  OBJ(&FIL/*ALL) OBJTYPE(*ALL) USER(*PUBLIC) +
+                          AUT(*ALL)
+
+
+
+
+
+ENDPGM
